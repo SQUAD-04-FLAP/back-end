@@ -1,8 +1,6 @@
 package dev.squad04.projetoFlap.auth.controller;
 
-import dev.squad04.projetoFlap.auth.dto.LoggedDTO;
-import dev.squad04.projetoFlap.auth.dto.LoginDTO;
-import dev.squad04.projetoFlap.auth.dto.RegisterDTO;
+import dev.squad04.projetoFlap.auth.dto.*;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -30,13 +28,20 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody @Valid RegisterDTO user) {
-        if (this.authService.findByLogin(user.login()) != null) {
-            throw new RuntimeException("O usuário já existe.");
-        }
-
-        User newUser = authService.register(user);
-
+    public ResponseEntity<User> register(@RequestBody @Valid RegisterDTO data) {
+        User newUser = authService.register(data);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordDTO data) {
+        this.authService.requestPasswordReset(data.email());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO data) {
+        this.authService.resetPassword(data.code(), data.newPassword());
+        return ResponseEntity.ok().build();
     }
 }

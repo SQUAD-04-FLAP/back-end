@@ -31,6 +31,18 @@ spring:
           google:
             issuer-uri: https://accounts.google.com
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: squad04flapdigital@gmail.com
+    password: ${GOOGLE_EMAIL_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 api:
   security:
     jwt:
