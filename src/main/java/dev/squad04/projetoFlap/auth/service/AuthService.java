@@ -7,7 +7,9 @@ import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.enums.AuthProvider;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.email.service.EmailService;
+import dev.squad04.projetoFlap.exceptions.AppException;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class AuthService implements UserDetailsService {
@@ -52,6 +55,10 @@ public class AuthService implements UserDetailsService {
     }
 
     public User register(RegisterDTO user) {
+        if (findByLogin(user.login()) != null) {
+            throw new AppException("O usuário informado já existe.", HttpStatus.BAD_REQUEST);
+        }
+
         String encodedPassword = new BCryptPasswordEncoder().encode(user.password());
         User newUser = new User(user.login(), encodedPassword, user.role(), AuthProvider.CREDENTIALS);
         this.repository.save(newUser);
@@ -61,6 +68,10 @@ public class AuthService implements UserDetailsService {
 
     public User findByLogin(String login) {
         return (User) repository.findByLogin(login);
+    }
+
+    public Optional<User> findByPasswordResetCode(String code) {
+        return repository.findByPasswordResetCode(code);
     }
 
     public void requestPasswordReset(String login) {
@@ -74,15 +85,17 @@ public class AuthService implements UserDetailsService {
             this.repository.save(user);
 
             this.emailService.sendPasswordResetCode(user.getLogin(), code);
+        } else {
+            throw new AppException("Usuário não encontrado", HttpStatus.NOT_FOUND);
         }
     }
 
     public void resetPassword(String code, String newPassword) {
         User user = this.repository.findByPasswordResetCode(code)
-                .orElseThrow(() -> new RuntimeException("Código inválido ou expirado"));
+                .orElseThrow(() -> new AppException("Código inválido ou não encontrado", HttpStatus.NOT_FOUND));
 
         if (user.getPasswordResetCodeExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Código de redefinição de senha expirado");
+            throw new AppException("Código de redefinição de senha expirado", HttpStatus.BAD_REQUEST);
         }
 
         user.setPassword(this.passwordEncoder.encode(newPassword));

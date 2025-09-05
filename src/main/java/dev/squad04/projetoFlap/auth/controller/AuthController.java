@@ -29,12 +29,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody @Valid RegisterDTO data) {
-        if (this.authService.findByLogin(data.login()) != null) {
-            throw new RuntimeException("O usuário já existe.");
-        }
-
         User newUser = authService.register(data);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
