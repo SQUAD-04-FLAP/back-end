@@ -33,7 +33,7 @@ public class RestExceptionHandler {
                 Instant.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 "Unauthorized",
-                "Credenciais inválidas. Verifique seu login e senha.",
+                "Credenciais inválidas. Verifique seu email e senha.",
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);

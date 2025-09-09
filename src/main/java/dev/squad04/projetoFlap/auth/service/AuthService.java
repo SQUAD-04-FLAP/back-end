@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class AuthService implements UserDetailsService {
@@ -43,65 +42,54 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return repository.findByLogin(username);
+        var user = repository.findUserDetailsByEmail(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado com o login: " + username);
+        }
+        return user;
     }
 
     public LoggedDTO login(LoginDTO data) {
-        var userPassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+        var userPassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
         var auth = this.authenticationManager.authenticate(userPassword);
         var token = tokenService.generateToken((User) auth.getPrincipal());
-
         return new LoggedDTO(token);
     }
 
-    public User register(RegisterDTO user) {
-        if (findByLogin(user.login()) != null) {
-            throw new AppException("O usuário informado já existe.", HttpStatus.BAD_REQUEST);
+    public User register(RegisterDTO data) {
+        if (repository.findByEmail(data.email()).isPresent()) {
+            throw new AppException("O email informado já existe.", HttpStatus.CONFLICT);
         }
 
-        String encodedPassword = new BCryptPasswordEncoder().encode(user.password());
-        User newUser = new User(user.login(), encodedPassword, user.role(), AuthProvider.CREDENTIALS);
-        this.repository.save(newUser);
+        String encodedPassword = new BCryptPasswordEncoder().encode(data.senha());
+        User newUser = new User(data.nome(), data.email(), encodedPassword, data.permissao(), AuthProvider.CREDENTIALS);
 
-        return newUser;
+        return this.repository.save(newUser);
     }
 
-    public User findByLogin(String login) {
-        return (User) repository.findByLogin(login);
-    }
-
-    public Optional<User> findByPasswordResetCode(String code) {
-        return repository.findByPasswordResetCode(code);
-    }
-
-    public void requestPasswordReset(String login) {
-        User user = (User) this.repository.findByLogin(login);
-
-        if (user != null && user.getProvider() == AuthProvider.CREDENTIALS) {
-            String code = new DecimalFormat("000000").format(new SecureRandom().nextInt(999999));
-
-            user.setPasswordResetCode(code);
-            user.setPasswordResetCodeExpiry(LocalDateTime.now().plusMinutes(10));
-            this.repository.save(user);
-
-            this.emailService.sendPasswordResetCode(user.getLogin(), code);
-        } else {
-            throw new AppException("Usuário não encontrado", HttpStatus.NOT_FOUND);
-        }
+    public void requestPasswordReset(String email) {
+        repository.findByEmail(email).ifPresent(user -> {
+            if (user.getProvedor() == AuthProvider.CREDENTIALS) {
+                String code = new DecimalFormat("000000").format(new SecureRandom().nextInt(999999));
+                user.setResetCode(code);
+                user.setResetCodeExpiry(LocalDateTime.now().plusMinutes(10));
+                this.repository.save(user);
+                this.emailService.sendPasswordResetCode(user.getEmail(), code);
+            }
+        });
     }
 
     public void resetPassword(String code, String newPassword) {
-        User user = this.repository.findByPasswordResetCode(code)
+        User user = this.repository.findByResetCode(code)
                 .orElseThrow(() -> new AppException("Código inválido ou não encontrado", HttpStatus.NOT_FOUND));
 
-        if (user.getPasswordResetCodeExpiry().isBefore(LocalDateTime.now())) {
+        if (user.getResetCodeExpiry().isBefore(LocalDateTime.now())) {
             throw new AppException("Código de redefinição de senha expirado", HttpStatus.BAD_REQUEST);
         }
 
-        user.setPassword(this.passwordEncoder.encode(newPassword));
-
-        user.setPasswordResetCode(null);
-        user.setPasswordResetCodeExpiry(null);
+        user.setSenha(this.passwordEncoder.encode(newPassword));
+        user.setResetCode(null);
+        user.setResetCodeExpiry(null);
 
         this.repository.save(user);
     }

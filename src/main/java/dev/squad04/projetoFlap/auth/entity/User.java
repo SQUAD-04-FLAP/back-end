@@ -15,43 +15,53 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-@Table(name = "tb_users")
+@Table(name = "usuarios")
 @Entity
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-    private String login;
-    private String password;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idUsuario;
+    private String nome;
+    private String email;
+    private String senha;
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole permissao;
 
     @Enumerated(EnumType.STRING)
-    private AuthProvider provider;
+    private AuthProvider provedor;
 
-    private String passwordResetCode;
-    private LocalDateTime passwordResetCodeExpiry;
+    private String resetCode;
+    private LocalDateTime resetCodeExpiry;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
-    public User(String login, String password, UserRole role, AuthProvider provider) {
-        this.login = login;
-        this.password = password;
-        this.role = role;
-        this.provider = provider;
+    public User(String nome, String email, String senha, UserRole permissao, AuthProvider provedor) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+        this.permissao = permissao;
+        this.provedor = provedor;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.role == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"),
+        if (this.permissao == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"),
                 new SimpleGrantedAuthority("ROLE_USER"));
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
     public String getUsername() {
-        return login;
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return senha;
     }
 
     @Override
