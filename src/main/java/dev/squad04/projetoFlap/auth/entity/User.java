@@ -37,7 +37,6 @@ public class User implements UserDetails {
     private LocalDateTime resetCodeExpiry;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
 
     public User(String nome, String email, String senha, UserRole permissao, AuthProvider provedor) {
         this.nome = nome;

@@ -9,8 +9,7 @@ CREATE TABLE usuarios (
     reset_code VARCHAR(15),
     reset_code_expiry TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP,
-    deleted_at TIMESTAMP
+    updated_at TIMESTAMP
 );
 
 ALTER SEQUENCE usuarios_id_usuario_seq RESTART WITH 1000;
