@@ -1,5 +1,6 @@
 package dev.squad04.projetoFlap.auth.service;
 
+import dev.squad04.projetoFlap.auth.dto.ForgotPasswordDTO;
 import dev.squad04.projetoFlap.auth.dto.LoggedDTO;
 import dev.squad04.projetoFlap.auth.dto.LoginDTO;
 import dev.squad04.projetoFlap.auth.dto.RegisterDTO;
@@ -67,8 +68,8 @@ public class AuthService implements UserDetailsService {
         return this.repository.save(newUser);
     }
 
-    public void requestPasswordReset(String email) {
-        repository.findByEmail(email).ifPresent(user -> {
+    public void requestPasswordReset(ForgotPasswordDTO data) {
+        repository.findByEmail(data.email()).ifPresent(user -> {
             if (user.getProvedor() == AuthProvider.CREDENTIALS) {
                 String code = new DecimalFormat("000000").format(new SecureRandom().nextInt(999999));
                 user.setResetCode(code);

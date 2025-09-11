@@ -1,9 +1,6 @@
 package dev.squad04.projetoFlap.auth.controller;
 
-import dev.squad04.projetoFlap.auth.dto.LoggedDTO;
-import dev.squad04.projetoFlap.auth.dto.LoginDTO;
-import dev.squad04.projetoFlap.auth.dto.RegisterDTO;
-import dev.squad04.projetoFlap.auth.dto.ResetPasswordDTO;
+import dev.squad04.projetoFlap.auth.dto.*;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -38,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestBody @Email String email) {
+    public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordDTO email) {
         this.authService.requestPasswordReset(email);
         return ResponseEntity.ok().build();
     }
