@@ -4,11 +4,17 @@ import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.board.entity.Tarefa;
 import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tarefa_status_history")
+@Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
 public class TarefaStatusHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

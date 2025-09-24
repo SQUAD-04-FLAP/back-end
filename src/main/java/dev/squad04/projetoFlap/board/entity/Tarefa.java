@@ -1,6 +1,7 @@
 package dev.squad04.projetoFlap.board.entity;
 
 import dev.squad04.projetoFlap.auth.entity.User;
+import dev.squad04.projetoFlap.board.entity.associations.TarefaStatusHistory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,6 +42,9 @@ public class Tarefa {
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Historico> historicos;
+
+    @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TarefaStatusHistory> historicosDeStatus;
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comentario> comentarios;
