@@ -2,6 +2,7 @@ package dev.squad04.projetoFlap.board.service;
 
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
+import dev.squad04.projetoFlap.board.dto.setor.AssociacaoResponseDTO;
 import dev.squad04.projetoFlap.board.dto.setor.AssociarUsuarioSetorDTO;
 import dev.squad04.projetoFlap.board.dto.setor.CriarSetorDTO;
 import dev.squad04.projetoFlap.board.entity.Setor;
@@ -38,11 +39,12 @@ public class SetorService {
         novoSetor.setNome(data.nome());
         novoSetor.setDescricao(data.descricao());
         novoSetor.setCreatedAt(LocalDateTime.now());
+        novoSetor.setUpdatedAt(LocalDateTime.now());
         return setorRepository.save(novoSetor);
     }
 
     @Transactional
-    public UsuarioSetor associarUsuario(Integer idSetor, AssociarUsuarioSetorDTO data) {
+    public AssociacaoResponseDTO associarUsuario(Integer idSetor, AssociarUsuarioSetorDTO data) {
         Setor setor = setorRepository.findById(idSetor)
                 .orElseThrow(() -> new AppException("Setor não encontrado", HttpStatus.NOT_FOUND));
 
@@ -64,7 +66,15 @@ public class SetorService {
         novaAssociacao.setAssociadoPor(associador);
         novaAssociacao.setAssociadoEm(LocalDateTime.now());
 
-        return usuarioSetorRepository.save(novaAssociacao);
+        usuarioSetorRepository.save(novaAssociacao);
+
+        return new AssociacaoResponseDTO(
+                novaAssociacao.getUsuario().getIdUsuario(),
+                novaAssociacao.getUsuario().getNome(),
+                novaAssociacao.getSetor().getIdSetor(),
+                novaAssociacao.getSetor().getNome(),
+                novaAssociacao.getAssociadoEm()
+        );
     }
 
     public void desassociarUsuario(Integer idSetor, Integer idUsuario) {

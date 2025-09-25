@@ -3,6 +3,7 @@ package dev.squad04.projetoFlap.board.service;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.board.dto.tarefa.AdicionarComentarioDTO;
+import dev.squad04.projetoFlap.board.dto.tarefa.AtribuirResponsavelDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.CriarTarefaDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.MoverTarefaDTO;
 import dev.squad04.projetoFlap.board.entity.Comentario;
@@ -56,6 +57,7 @@ public class TarefaService {
         novaTarefa.setStatus(statusInicial);
         novaTarefa.setAtivo(true);
         novaTarefa.setCreatedAt(LocalDateTime.now());
+        novaTarefa.setUpdatedAt(LocalDateTime.now());
 
         return tarefaRepository.save(novaTarefa);
     }
@@ -94,18 +96,6 @@ public class TarefaService {
         return tarefaRepository.save(tarefa);
     }
 
-    @Transactional
-    public Tarefa atribuirResponsavel(Integer idTarefa, Integer idResponsavel) {
-        Tarefa tarefa = tarefaRepository.findById(idTarefa)
-                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
-
-        User responsavel = userRepository.findById(idResponsavel)
-                .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
-
-        tarefa.setResponsavel(responsavel);
-        return tarefaRepository.save(tarefa);
-    }
-
     public void deletarTarefa(Integer idTarefa) {
         if (!tarefaRepository.existsById(idTarefa)) {
             throw new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND);
@@ -114,6 +104,19 @@ public class TarefaService {
         }
     }
 
+    @Transactional
+    public Tarefa atribuirResponsavel(Integer idTarefa, AtribuirResponsavelDTO idResponsavel) {
+        Tarefa tarefa = tarefaRepository.findById(idTarefa)
+                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
+
+        User responsavel = userRepository.findById(idResponsavel.idResponsavel())
+                .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
+
+        tarefa.setResponsavel(responsavel);
+        return tarefaRepository.save(tarefa);
+    }
+
+    @Transactional
     public Tarefa adicionarComentario(Integer idTarefa, AdicionarComentarioDTO data) {
         Tarefa tarefa = tarefaRepository.findById(idTarefa)
                 .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));

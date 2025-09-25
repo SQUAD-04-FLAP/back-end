@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 
@@ -38,6 +39,8 @@ public class QuadroService {
         novoQuadro.setSetor(setor);
         novoQuadro.setAtivo(true);
         novoQuadro.setWorkflowStatus(new HashSet<>());
+        novoQuadro.setCreatedAt(LocalDateTime.now());
+        novoQuadro.setUpdatedAt(LocalDateTime.now());
 
         Quadro quadroSalvo = quadroRepository.save(novoQuadro);
 

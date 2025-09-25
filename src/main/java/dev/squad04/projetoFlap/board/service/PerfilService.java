@@ -28,6 +28,7 @@ public class PerfilService {
         novoPerfil.setNome(data.nome());
         novoPerfil.setDescricao(data.descricao());
         novoPerfil.setCreatedAt(LocalDateTime.now());
+        novoPerfil.setUpdatedAt(LocalDateTime.now());
         return perfilRepository.save(novoPerfil);
     }
 

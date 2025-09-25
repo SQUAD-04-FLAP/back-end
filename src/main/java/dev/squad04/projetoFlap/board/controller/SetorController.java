@@ -1,5 +1,6 @@
 package dev.squad04.projetoFlap.board.controller;
 
+import dev.squad04.projetoFlap.board.dto.setor.AssociacaoResponseDTO;
 import dev.squad04.projetoFlap.board.dto.setor.AssociarUsuarioSetorDTO;
 import dev.squad04.projetoFlap.board.dto.setor.CriarSetorDTO;
 import dev.squad04.projetoFlap.board.entity.Setor;
@@ -28,12 +29,12 @@ public class SetorController {
     }
 
     @PostMapping("/associar/{idSetor}")
-    public ResponseEntity<UsuarioSetor> associarUsuario(@PathVariable Integer idSetor, @RequestBody AssociarUsuarioSetorDTO data) {
-        UsuarioSetor usuarioSetor = setorService.associarUsuario(idSetor, data);
+    public ResponseEntity<AssociacaoResponseDTO> associarUsuario(@PathVariable Integer idSetor, @RequestBody AssociarUsuarioSetorDTO data) {
+        AssociacaoResponseDTO usuarioSetor = setorService.associarUsuario(idSetor, data);
         return ResponseEntity.ok(usuarioSetor);
     }
 
-    @DeleteMapping("/desassociar/{idSetor}")
+    @DeleteMapping("/desassociar/{idSetor}/{idUsuario}")
     public ResponseEntity<Void> desassociarUsuario(@PathVariable Integer idSetor, @PathVariable Integer idUsuario) {
         setorService.desassociarUsuario(idSetor, idUsuario);
         return ResponseEntity.noContent().build();
