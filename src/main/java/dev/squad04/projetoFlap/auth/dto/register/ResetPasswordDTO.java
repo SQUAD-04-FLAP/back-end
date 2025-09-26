@@ -1,4 +1,4 @@
-package dev.squad04.projetoFlap.auth.dto;
+package dev.squad04.projetoFlap.auth.dto.register;
 
 import jakarta.validation.constraints.NotBlank;
 

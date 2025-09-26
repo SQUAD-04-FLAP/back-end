@@ -1,7 +1,7 @@
 package dev.squad04.projetoFlap.auth.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.squad04.projetoFlap.auth.dto.LoggedDTO;
+import dev.squad04.projetoFlap.auth.dto.login.LoggedDTO;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.enums.AuthProvider;
 import dev.squad04.projetoFlap.auth.enums.UserRole;
