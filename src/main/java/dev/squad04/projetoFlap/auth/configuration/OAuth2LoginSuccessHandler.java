@@ -1,7 +1,7 @@
 package dev.squad04.projetoFlap.auth.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.squad04.projetoFlap.auth.dto.LoggedDTO;
+import dev.squad04.projetoFlap.auth.dto.login.LoggedDTO;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.enums.AuthProvider;
 import dev.squad04.projetoFlap.auth.enums.UserRole;
@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -34,20 +35,25 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+        String nome = oAuth2User.getAttribute("name");
         String email = oAuth2User.getAttribute("email");
 
-        User user = (User) userRepository.findByLogin(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User finalUser;
 
-        if (user == null) {
-            user = new User();
-            user.setLogin(email);
-            user.setRole(UserRole.USER);
-            user.setPassword(null);
-            user.setProvider(AuthProvider.GOOGLE);
-            userRepository.save(user);
+        if (optionalUser.isPresent()) {
+            finalUser = optionalUser.get();
+        } else {
+            User newUser = new User();
+            newUser.setNome(nome);
+            newUser.setEmail(email);
+            newUser.setPermissao(UserRole.USER);
+            newUser.setSenha(null);
+            newUser.setProvedor(AuthProvider.GOOGLE);
+            finalUser = userRepository.save(newUser);
         }
 
-        String jwtToken = tokenService.generateToken(user);
+        String jwtToken = tokenService.generateToken(finalUser);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         LoggedDTO loggedDTO = new LoggedDTO(jwtToken);
