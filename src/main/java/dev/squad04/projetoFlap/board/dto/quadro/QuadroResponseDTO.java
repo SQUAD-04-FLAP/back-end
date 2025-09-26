@@ -1,8 +1,15 @@
 package dev.squad04.projetoFlap.board.dto.quadro;
 
+import java.time.LocalDateTime;
+import java.util.Set;
+
 public record QuadroResponseDTO(
     Integer idQuadro,
     String nome,
-    Boolean ativo,
     Integer idSetor,
-    String nomeSetor) {}
+    String nomeSetor,
+    Set<WorkflowStatusDTO> status,
+    Boolean ativo,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
+) {}

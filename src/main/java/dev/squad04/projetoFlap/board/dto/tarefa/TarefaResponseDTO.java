@@ -9,12 +9,17 @@ public record TarefaResponseDTO (
         Integer idTarefa,
         String titulo,
         String descricao,
-        Integer idStatus,
-        String nomeStatus,
-        LocalDateTime prazo,
         Integer idQuadro,
         String nomeQuadro,
+        Integer idStatus,
+        String nomeStatus,
+        Integer idCriadoPor,
+        String nomeCriadoPor,
         Integer idResponsavel,
         String nomeResponsavel,
-        Set<ComentarioDTO> comentarios
+        Set<ComentarioDTO> comentarios,
+        LocalDateTime prazo,
+        Boolean ativo,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {}

@@ -7,6 +7,8 @@ public record AssociacaoResponseDTO(
         String nomeUsuario,
         Integer idSetor,
         String nomeSetor,
-        LocalDateTime associadoEm
+        LocalDateTime associadoEm,
+        Integer idAssociadoPor,
+        String nameAssociadoPor
 ) {
 }
