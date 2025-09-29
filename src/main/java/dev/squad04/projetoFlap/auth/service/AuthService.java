@@ -4,8 +4,10 @@ import dev.squad04.projetoFlap.auth.dto.register.ForgotPasswordDTO;
 import dev.squad04.projetoFlap.auth.dto.login.LoggedDTO;
 import dev.squad04.projetoFlap.auth.dto.login.LoginDTO;
 import dev.squad04.projetoFlap.auth.dto.register.RegisterDTO;
+import dev.squad04.projetoFlap.auth.dto.user.SetUserRoleDTO;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.enums.AuthProvider;
+import dev.squad04.projetoFlap.auth.enums.UserRole;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.email.service.EmailService;
 import dev.squad04.projetoFlap.exceptions.AppException;
@@ -64,7 +66,7 @@ public class AuthService implements UserDetailsService {
         }
 
         String encodedPassword = new BCryptPasswordEncoder().encode(data.senha());
-        User newUser = new User(data.nome(), data.email(), encodedPassword, data.permissao(), AuthProvider.CREDENTIALS);
+        User newUser = new User(data.nome(), data.email(), encodedPassword, UserRole.USER, AuthProvider.CREDENTIALS);
 
         return this.repository.save(newUser);
     }
@@ -104,5 +106,13 @@ public class AuthService implements UserDetailsService {
         } else {
             throw new AppException("Usuário não encontrado.", HttpStatus.NOT_FOUND);
         }
+    }
+
+    public User setUserRole(Integer id, SetUserRoleDTO data) {
+        User user = this.repository.findById(id)
+                .orElseThrow(() -> new AppException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+
+        user.setPermissao(data.role());
+        return repository.save(user);
     }
 }
