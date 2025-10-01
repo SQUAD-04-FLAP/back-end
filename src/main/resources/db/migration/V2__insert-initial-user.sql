@@ -1,2 +1,0 @@
-INSERT INTO usuarios (nome, email, senha, ativo, permissao, provedor)
-VALUES ('Admin', 'squad04flapdigital@gmail.com', '$2a$12$8bV5QcNmwqs2mJRsyjnYneBquSbtwth4EgXBAEPitp3Wn0j/IFQWW', TRUE, 'ADMIN', 'CREDENTIALS');

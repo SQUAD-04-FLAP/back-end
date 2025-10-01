@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class User implements UserDetails {
     private AuthProvider provedor;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UsuarioSetor> associacoesSetor;
+    private Set<UsuarioSetor> associacoesSetor = new HashSet<>();
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private PreferenciasInterface preferencias;
@@ -57,6 +58,8 @@ public class User implements UserDetails {
         this.senha = senha;
         this.permissao = permissao;
         this.provedor = provedor;
+        this.ativo = true;
+        this.createdAt = LocalDateTime.now();
     }
 
     @Override

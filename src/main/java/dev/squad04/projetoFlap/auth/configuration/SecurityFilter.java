@@ -1,6 +1,7 @@
 package dev.squad04.projetoFlap.auth.configuration;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.auth.service.TokenService;
 import dev.squad04.projetoFlap.exceptions.ErrorResponseWriter;
@@ -35,11 +36,16 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoverToken(request);
         if (token != null) {
             try {
-                var email = tokenService.validateToken(token);
+                DecodedJWT decodedJWT = tokenService.validateToken(token);
+                String email = decodedJWT.getClaim("email").asString();
                 UserDetails user = repository.findUserDetailsByEmail(email);
 
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (user != null) {
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+
+
             } catch (JWTVerificationException exception) {
                 errorResponseWriter.writeErrorResponse(
                         response, HttpStatus.UNAUTHORIZED, "Token JWT inválido ou expirado.", request.getRequestURI());

@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.squad04.projetoFlap.auth.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,9 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
             String token = JWT.create()
                     .withIssuer("auth-api")
-                    .withSubject(user.getEmail())
+                    .withSubject(user.getIdUsuario().toString())
+                    .withClaim("nome", user.getNome())
+                    .withClaim("email", user.getEmail())
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
             return token;
@@ -32,16 +35,15 @@ public class TokenService {
         }
     }
 
-    public String validateToken(String token) throws JWTVerificationException {
+    public DecodedJWT validateToken(String token) throws JWTVerificationException {
         try {
             Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
             return JWT.require(algorithm)
                     .withIssuer("auth-api")
                     .build()
-                    .verify(token)
-                    .getSubject();
+                    .verify(token);
         } catch (JWTVerificationException exception) {
-            throw exception;
+            throw new JWTVerificationException("Token inválido ou expirado", exception);
         }
     }
 
