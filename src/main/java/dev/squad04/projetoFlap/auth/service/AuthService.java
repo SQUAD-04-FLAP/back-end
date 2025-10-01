@@ -112,7 +112,7 @@ public class AuthService implements UserDetailsService {
         User user = this.repository.findById(id)
                 .orElseThrow(() -> new AppException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
 
-        user.setPermissao(data.role());
+        user.setPermissao(data.permissao());
         return repository.save(user);
     }
 }

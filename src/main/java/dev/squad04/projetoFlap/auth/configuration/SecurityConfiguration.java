@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/update-role/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/auth/update-role/**").hasRole("ADMIN")
                         .requestMatchers("/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -94,7 +94,7 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @PatchMapping("/update-role/{idUser}")
-    public ResponseEntity<UserResponseDTO> setUserRole(@PathVariable Integer idUser, @RequestBody @Valid SetUserRoleDTO data) {
+    public ResponseEntity<UserResponseDTO> setUserRole(@PathVariable Integer idUser, @RequestBody SetUserRoleDTO data) {
         User user = this.authService.setUserRole(idUser, data);
         return ResponseEntity.ok(userMapper.toDTO(user));
     }
