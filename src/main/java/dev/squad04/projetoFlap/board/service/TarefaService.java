@@ -66,10 +66,14 @@ public class TarefaService {
         return tarefaRepository.findByQuadroIdQuadro(idQuadro);
     }
 
+    public Tarefa buscarPorId(Integer idTarefa) {
+        return tarefaRepository.findById(idTarefa)
+                .orElseThrow(() -> new AppException("Tarefa com ID " + idTarefa + " não encontrada.", HttpStatus.NOT_FOUND));
+    }
+
     @Transactional
     public Tarefa moverTarefaParaStatus(Integer idTarefa, MoverTarefaDTO data) {
-        Tarefa tarefa = tarefaRepository.findById(idTarefa)
-                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
+        Tarefa tarefa = buscarPorId(idTarefa);
 
         User usuarioLogado = userRepository.findById(data.idUsuarioLogado())
                 .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
@@ -106,8 +110,7 @@ public class TarefaService {
 
     @Transactional
     public Tarefa atribuirResponsavel(Integer idTarefa, AtribuirResponsavelDTO idResponsavel) {
-        Tarefa tarefa = tarefaRepository.findById(idTarefa)
-                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
+        Tarefa tarefa = buscarPorId(idTarefa);
 
         User responsavel = userRepository.findById(idResponsavel.idResponsavel())
                 .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
@@ -118,8 +121,7 @@ public class TarefaService {
 
     @Transactional
     public Tarefa adicionarComentario(Integer idTarefa, AdicionarComentarioDTO data) {
-        Tarefa tarefa = tarefaRepository.findById(idTarefa)
-                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
+        Tarefa tarefa = buscarPorId(idTarefa);
 
         User autor = userRepository.findById(data.idUsuario())
                 .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
