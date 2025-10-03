@@ -83,4 +83,26 @@ public class SetorService {
         return setorRepository.findById(idSetor)
                 .orElseThrow(() -> new AppException("Setor com ID " + idSetor + " não encontrado", HttpStatus.NOT_FOUND));
     }
+
+    @Transactional
+    public Setor atualizarSetor(Integer idSetor, CriarSetorDTO data) {
+        Setor setorExistente = buscarPorId(idSetor);
+
+        setorRepository.findByNome(data.nome()).ifPresent(setorComMesmoNome -> {
+            if (!setorComMesmoNome.getIdSetor().equals(idSetor)) {
+                throw new AppException("Nome de setor já está em uso.", HttpStatus.CONFLICT);
+            }
+        });
+
+        setorExistente.setNome(data.nome());
+        setorExistente.setDescricao(data.descricao());
+        setorExistente.setUpdatedAt(LocalDateTime.now());
+
+        return setorRepository.save(setorExistente);
+    }
+
+    public void deletarSetor(Integer idSetor) {
+        Setor setorExistente = buscarPorId(idSetor);
+        setorRepository.delete(setorExistente);
+    }
 }

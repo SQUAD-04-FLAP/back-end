@@ -1,5 +1,6 @@
 package dev.squad04.projetoFlap.board.service;
 
+import dev.squad04.projetoFlap.board.dto.quadro.AtualizarQuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
 import dev.squad04.projetoFlap.board.entity.Setor;
@@ -66,5 +67,27 @@ public class QuadroService {
     public Quadro buscarPorId(Integer idQuadro) {
         return quadroRepository.findById(idQuadro)
                 .orElseThrow(() -> new AppException("Quadro com ID " + idQuadro + " não encontrado.", HttpStatus.NOT_FOUND));
+    }
+
+    @Transactional
+    public Quadro atualizarQuadro(Integer idQuadro, AtualizarQuadroDTO data) {
+        Quadro quadroExistente = buscarPorId(idQuadro);
+
+        Setor novoSetor = null;
+        if (data.idSetor() != null) {
+            novoSetor = setorRepository.findById(data.idSetor())
+                    .orElseThrow(() -> new AppException(
+                            "Setor de destino com ID " + data.idSetor() + " não encontrado.", HttpStatus.NOT_FOUND
+                    ));
+        } else {
+            novoSetor = quadroExistente.getSetor();
+        }
+
+        quadroExistente.setNome(data.nome());
+        quadroExistente.setSetor(novoSetor);
+        quadroExistente.setAtivo(data.ativo());
+        quadroExistente.setUpdatedAt(LocalDateTime.now());
+
+        return quadroRepository.save(quadroExistente);
     }
 }
