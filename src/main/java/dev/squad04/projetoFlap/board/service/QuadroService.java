@@ -62,4 +62,9 @@ public class QuadroService {
     public List<Quadro> listarPorSetor(Integer idSetor) {
         return quadroRepository.findBySetorIdSetor(idSetor);
     }
+
+    public Quadro buscarPorId(Integer idQuadro) {
+        return quadroRepository.findById(idQuadro)
+                .orElseThrow(() -> new AppException("Quadro com ID " + idQuadro + " não encontrado.", HttpStatus.NOT_FOUND));
+    }
 }

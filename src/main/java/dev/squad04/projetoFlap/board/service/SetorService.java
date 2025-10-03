@@ -44,8 +44,7 @@ public class SetorService {
 
     @Transactional
     public UsuarioSetor associarUsuario(Integer idSetor, AssociarUsuarioSetorDTO data) {
-        Setor setor = setorRepository.findById(idSetor)
-                .orElseThrow(() -> new AppException("Setor não encontrado", HttpStatus.NOT_FOUND));
+        Setor setor = buscarPorId(idSetor);
 
         User usuarioParaAssociar = userRepository.findById(data.idUsuario())
                 .orElseThrow(() -> new AppException("Usuário não encontrado", HttpStatus.NOT_FOUND));
@@ -78,5 +77,10 @@ public class SetorService {
 
     public List<Setor> listarTodos() {
         return setorRepository.findAll();
+    }
+
+    public Setor buscarPorId(Integer idSetor) {
+        return setorRepository.findById(idSetor)
+                .orElseThrow(() -> new AppException("Setor com ID " + idSetor + " não encontrado", HttpStatus.NOT_FOUND));
     }
 }

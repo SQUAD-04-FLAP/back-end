@@ -46,4 +46,15 @@ public class QuadroController {
         List<Quadro> quadros = quadroService.listarPorSetor(idSetor);
         return ResponseEntity.ok(quadroMapper.toDTOList(quadros));
     }
+
+    @Operation(summary = "Busca um quadro pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Quadro encontrado"),
+            @ApiResponse(responseCode = "404", description = "Quadro não encontrado")
+    })
+    @GetMapping("/{idQuadro}")
+    public ResponseEntity<QuadroResponseDTO> buscarQuadroPorId(@PathVariable Integer idQuadro) {
+        Quadro quadro = quadroService.buscarPorId(idQuadro);
+        return ResponseEntity.ok(quadroMapper.toDTO(quadro));
+    }
 }

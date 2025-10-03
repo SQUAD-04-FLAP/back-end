@@ -9,6 +9,7 @@ import dev.squad04.projetoFlap.board.mapper.SetorMapper;
 import dev.squad04.projetoFlap.board.service.SetorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,5 +59,16 @@ public class SetorController {
     public ResponseEntity<List<Setor>> listarTodos() {
         List<Setor> setores = setorService.listarTodos();
         return ResponseEntity.ok(setores);
+    }
+
+    @Operation(summary = "Busca um setor pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Setor encontrado"),
+            @ApiResponse(responseCode = "404", description = "Setor não encontrado")
+    })
+    @GetMapping("/{idSetor}")
+    public ResponseEntity<Setor> buscarSetorPorId(@PathVariable Integer idSetor) {
+        Setor setor = setorService.buscarPorId(idSetor);
+        return ResponseEntity.ok(setor);
     }
 }
