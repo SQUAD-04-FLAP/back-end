@@ -1,5 +1,6 @@
 package dev.squad04.projetoFlap.board.controller;
 
+import dev.squad04.projetoFlap.board.dto.quadro.AtualizarQuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroResponseDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
@@ -45,5 +46,29 @@ public class QuadroController {
     public ResponseEntity<List<QuadroResponseDTO>> listarPorSetor(@PathVariable Integer idSetor) {
         List<Quadro> quadros = quadroService.listarPorSetor(idSetor);
         return ResponseEntity.ok(quadroMapper.toDTOList(quadros));
+    }
+
+    @Operation(summary = "Busca um quadro pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Quadro encontrado"),
+            @ApiResponse(responseCode = "404", description = "Quadro não encontrado")
+    })
+    @GetMapping("/{idQuadro}")
+    public ResponseEntity<QuadroResponseDTO> buscarQuadroPorId(@PathVariable Integer idQuadro) {
+        Quadro quadro = quadroService.buscarPorId(idQuadro);
+        return ResponseEntity.ok(quadroMapper.toDTO(quadro));
+    }
+
+    @Operation(summary = "Atualiza os dados de um quadro")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Quadro atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Quadro ou Setor de destino não encontrado")
+    })
+    @PutMapping("/{idQuadro}")
+    public ResponseEntity<QuadroResponseDTO> atualizarQuadro(
+            @PathVariable Integer idQuadro, @RequestBody AtualizarQuadroDTO dto) {
+
+        Quadro quadroAtualizado = quadroService.atualizarQuadro(idQuadro, dto);
+        return ResponseEntity.ok(quadroMapper.toDTO(quadroAtualizado));
     }
 }
