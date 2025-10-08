@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -41,13 +42,13 @@ public class Tarefa {
     private User responsavel;
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Historico> historicos;
+    private Set<Historico> historicos = new HashSet<>();
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TarefaStatusHistory> historicosDeStatus;
+    private Set<TarefaStatusHistory> historicosDeStatus = new HashSet<>();
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Comentario> comentarios;
+    private Set<Comentario> comentarios = new HashSet<>();
 
     private LocalDateTime prazo;
     private Boolean ativo;

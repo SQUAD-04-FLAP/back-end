@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -46,7 +47,7 @@ public class TarefaService {
                 .orElseThrow(() -> new AppException("Quadro não encontrado", HttpStatus.NOT_FOUND));
 
         WorkflowStatus statusInicial = quadro.getWorkflowStatus().stream()
-                .min((s1, s2) -> Integer.compare(s1.getOrdem(), s2.getOrdem()))
+                .min(Comparator.comparingInt(WorkflowStatus::getOrdem))
                 .orElseThrow(() -> new AppException("O quadro não possui status definidos", HttpStatus.BAD_REQUEST));
 
         Tarefa novaTarefa = new Tarefa();
