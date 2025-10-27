@@ -3,6 +3,7 @@ package dev.squad04.projetoFlap.board.mapper;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroResponseDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.WorkflowStatusDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
+import dev.squad04.projetoFlap.board.entity.Setor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,11 +22,16 @@ public class QuadroMapper {
                 ))
                 .collect(Collectors.toSet());
 
+        Setor setor = quadro.getSetor();
+
+        Integer idSetor = (setor != null) ? setor.getIdSetor() : null;
+        String nomeSetor = (setor != null) ? setor.getNome() : null;
+
         return new QuadroResponseDTO(
                 quadro.getIdQuadro(),
                 quadro.getNome(),
-                quadro.getSetor().getIdSetor(),
-                quadro.getSetor().getNome(),
+                idSetor,
+                nomeSetor,
                 statusDto,
                 quadro.getAtivo(),
                 quadro.getCreatedAt(),

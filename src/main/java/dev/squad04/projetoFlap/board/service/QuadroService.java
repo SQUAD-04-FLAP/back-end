@@ -7,6 +7,7 @@ import dev.squad04.projetoFlap.board.entity.Setor;
 import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
 import dev.squad04.projetoFlap.board.repository.QuadroRepository;
 import dev.squad04.projetoFlap.board.repository.SetorRepository;
+import dev.squad04.projetoFlap.board.repository.TarefaRepository;
 import dev.squad04.projetoFlap.board.repository.WorkflowStatusRepository;
 import dev.squad04.projetoFlap.exceptions.AppException;
 import jakarta.transaction.Transactional;
@@ -23,11 +24,13 @@ public class QuadroService {
     private final QuadroRepository quadroRepository;
     private final SetorRepository setorRepository;
     private final WorkflowStatusRepository workflowStatusRepository;
+    private final TarefaRepository tarefaRepository;
 
-    public QuadroService(QuadroRepository quadroRepository, SetorRepository setorRepository, WorkflowStatusRepository workflowStatusRepository) {
+    public QuadroService(QuadroRepository quadroRepository, SetorRepository setorRepository, WorkflowStatusRepository workflowStatusRepository, TarefaRepository tarefaRepository) {
         this.quadroRepository = quadroRepository;
         this.setorRepository = setorRepository;
         this.workflowStatusRepository = workflowStatusRepository;
+        this.tarefaRepository = tarefaRepository;
     }
 
     @Transactional
@@ -69,6 +72,10 @@ public class QuadroService {
                 .orElseThrow(() -> new AppException("Quadro com ID " + idQuadro + " não encontrado.", HttpStatus.NOT_FOUND));
     }
 
+    public List<Quadro> buscarTodosQuadros() {
+        return quadroRepository.findAll();
+    }
+
     @Transactional
     public Quadro atualizarQuadro(Integer idQuadro, AtualizarQuadroDTO data) {
         Quadro quadroExistente = buscarPorId(idQuadro);
@@ -89,5 +96,24 @@ public class QuadroService {
         quadroExistente.setUpdatedAt(LocalDateTime.now());
 
         return quadroRepository.save(quadroExistente);
+    }
+
+    @Transactional
+    public void deletarQuadro(Integer idQuadro) {
+        if (!quadroRepository.existsById(idQuadro)) {
+            throw new AppException(
+                    "Quadro com ID " + idQuadro + " não encontrado.",
+                    HttpStatus.NOT_FOUND
+            );
+        }
+
+        // --- VERIFICAÇÃO DE SEGURANÇA ---
+        if (tarefaRepository.existsByQuadroIdQuadro(idQuadro)) {
+            throw new AppException(
+                    "Não é possível excluir o quadro. Ele ainda contém tarefas.",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        quadroRepository.deleteById(idQuadro);
     }
 }
