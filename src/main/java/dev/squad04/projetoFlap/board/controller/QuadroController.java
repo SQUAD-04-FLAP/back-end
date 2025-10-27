@@ -59,6 +59,14 @@ public class QuadroController {
         return ResponseEntity.ok(quadroMapper.toDTO(quadro));
     }
 
+    @Operation(summary = "Busca todos os quadros")
+    @ApiResponse(responseCode = "200", description = "Lista de todos os quadros")
+    @GetMapping
+    public ResponseEntity<List<QuadroResponseDTO>> buscarTodosQuadros() {
+        List<Quadro> quadros = quadroService.buscarTodosQuadros();
+        return ResponseEntity.ok(quadroMapper.toDTOList(quadros));
+    }
+
     @Operation(summary = "Atualiza os dados de um quadro")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Quadro atualizado com sucesso"),
@@ -70,5 +78,16 @@ public class QuadroController {
 
         Quadro quadroAtualizado = quadroService.atualizarQuadro(idQuadro, dto);
         return ResponseEntity.ok(quadroMapper.toDTO(quadroAtualizado));
+    }
+
+    @Operation(summary = "Deleta um quadro pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Quadro deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Quadro não encontrado")
+    })
+    @DeleteMapping("/{idQuadro}")
+    public ResponseEntity<Void> deletarQuadro(@PathVariable Integer idQuadro) {
+        quadroService.deletarQuadro(idQuadro);
+        return ResponseEntity.noContent().build();
     }
 }
