@@ -4,6 +4,9 @@ import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface WorkflowStatusRepository extends JpaRepository<WorkflowStatus, Integer> {
+    Optional<WorkflowStatus> findByQuadroIdQuadroAndOrdem(Integer idQuadro, Integer ordem);
 }

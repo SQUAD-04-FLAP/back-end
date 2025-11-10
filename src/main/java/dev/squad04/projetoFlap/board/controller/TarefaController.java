@@ -35,6 +35,17 @@ public class TarefaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(tarefaMapper.toDTO(novaTarefa));
     }
 
+    @Operation(summary = "Atualiza os dados de uma tarefa")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tarefa atualizada"),
+            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+    })
+    @PutMapping("/{idTarefa}")
+    public ResponseEntity<TarefaResponseDTO> atualizarTarefa(@PathVariable Integer idTarefa, @RequestBody AtualizarTarefaDTO data) {
+        Tarefa tarefaAtualizada = tarefaService.atualizarTarefa(idTarefa, data);
+        return ResponseEntity.ok(tarefaMapper.toDTO(tarefaAtualizada));
+    }
+
     @Operation(summary = "Busca todas as tarefas de um quadro")
     @GetMapping("/quadro/{idQuadro}")
     public ResponseEntity<List<TarefaResponseDTO>> buscarTarefaPorQuadro(@PathVariable Integer idQuadro) {
