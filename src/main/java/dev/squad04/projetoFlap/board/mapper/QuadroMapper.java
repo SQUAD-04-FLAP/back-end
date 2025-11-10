@@ -4,6 +4,7 @@ import dev.squad04.projetoFlap.board.dto.quadro.QuadroResponseDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.WorkflowStatusDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
 import dev.squad04.projetoFlap.board.entity.Setor;
+import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -43,5 +44,13 @@ public class QuadroMapper {
         return quadros.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    public WorkflowStatusDTO toStatusDTO(WorkflowStatus status) {
+        return new WorkflowStatusDTO(
+                status.getIdStatus(),
+                status.getNome(),
+                status.getOrdem()
+        );
     }
 }

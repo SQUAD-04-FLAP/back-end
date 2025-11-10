@@ -2,10 +2,7 @@ package dev.squad04.projetoFlap.board.service;
 
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
-import dev.squad04.projetoFlap.board.dto.tarefa.AdicionarComentarioDTO;
-import dev.squad04.projetoFlap.board.dto.tarefa.AtribuirResponsavelDTO;
-import dev.squad04.projetoFlap.board.dto.tarefa.CriarTarefaDTO;
-import dev.squad04.projetoFlap.board.dto.tarefa.MoverTarefaDTO;
+import dev.squad04.projetoFlap.board.dto.tarefa.*;
 import dev.squad04.projetoFlap.board.entity.Comentario;
 import dev.squad04.projetoFlap.board.entity.Quadro;
 import dev.squad04.projetoFlap.board.entity.Tarefa;
@@ -61,6 +58,17 @@ public class TarefaService {
         novaTarefa.setUpdatedAt(LocalDateTime.now());
 
         return tarefaRepository.save(novaTarefa);
+    }
+
+    @Transactional
+    public Tarefa atualizarTarefa(Integer idTarefa, AtualizarTarefaDTO data) {
+        Tarefa tarefa = buscarPorId(idTarefa);
+
+        tarefa.setTitulo(data.titulo());
+        tarefa.setDescricao(data.descricao());
+        tarefa.setPrazo(data.prazo());
+
+        return tarefaRepository.save(tarefa);
     }
 
     public List<Tarefa> buscarTarefasPorQuadro(Integer idQuadro) {

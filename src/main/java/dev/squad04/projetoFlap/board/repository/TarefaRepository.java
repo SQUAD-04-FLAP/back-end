@@ -10,4 +10,5 @@ import java.util.List;
 public interface TarefaRepository extends JpaRepository<Tarefa, Integer> {
     List<Tarefa> findByQuadroIdQuadro(Integer idQuadro);
     boolean existsByQuadroIdQuadro(Integer idQuadro);
+    boolean existsByStatusIdStatus(Integer idStatus);
 }

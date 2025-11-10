@@ -2,6 +2,8 @@ package dev.squad04.projetoFlap.board.service;
 
 import dev.squad04.projetoFlap.board.dto.quadro.AtualizarQuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroDTO;
+import dev.squad04.projetoFlap.board.dto.status.AtualizarStatusDTO;
+import dev.squad04.projetoFlap.board.dto.status.CriarStatusDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
 import dev.squad04.projetoFlap.board.entity.Setor;
 import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuadroService {
@@ -115,5 +118,58 @@ public class QuadroService {
             );
         }
         quadroRepository.deleteById(idQuadro);
+    }
+
+    @Transactional
+    public Quadro adicionarStatusAoQuadro(Integer idQuadro, CriarStatusDTO data) {
+        Quadro quadro = buscarPorId(idQuadro);
+
+        int ordem = quadro.getWorkflowStatus().size();
+
+        WorkflowStatus novoStatus = new WorkflowStatus();
+        novoStatus.setNome(data.nome());
+        novoStatus.setOrdem(ordem);
+        novoStatus.setQuadro(quadro);
+
+        workflowStatusRepository.save(novoStatus);
+
+        return quadroRepository.findById(idQuadro).get();
+    }
+
+    @Transactional
+    public WorkflowStatus atualizarStatus(Integer idStatus, AtualizarStatusDTO data) {
+        WorkflowStatus statusExistente = workflowStatusRepository.findById(idStatus)
+                .orElseThrow(() -> new AppException("Status com ID " + idStatus + " não encontrado.", HttpStatus.NOT_FOUND));
+
+        if (statusExistente.getOrdem().equals(data.ordem())) {
+            statusExistente.setNome(data.nome());
+            return workflowStatusRepository.save(statusExistente);
+        }
+
+        Quadro quadro = statusExistente.getQuadro();
+        Optional<WorkflowStatus> conflito = workflowStatusRepository.findByQuadroIdQuadroAndOrdem(quadro.getIdQuadro(), data.ordem());
+
+        if (conflito.isPresent()) {
+            throw new AppException(
+                    "A ordem " + data.ordem() + " já está em uso pelo status '" + conflito.get().getNome() + "' neste quadro.",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        statusExistente.setNome(data.nome());
+        statusExistente.setOrdem(data.ordem());
+
+        return workflowStatusRepository.save(statusExistente);
+    }
+
+    @Transactional
+    public void deletarStatus(Integer idStatus) {
+        if (tarefaRepository.existsByStatusIdStatus(idStatus)) {
+            throw new AppException(
+                    "Não é possível excluir este status, pois ele ainda contém tarefas.",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        workflowStatusRepository.deleteById(idStatus);
     }
 }
