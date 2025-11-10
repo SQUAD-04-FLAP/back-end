@@ -124,12 +124,13 @@ public class QuadroService {
     public Quadro adicionarStatusAoQuadro(Integer idQuadro, CriarStatusDTO data) {
         Quadro quadro = buscarPorId(idQuadro);
 
-        int ordem = quadro.getWorkflowStatus().size();
+        Optional<Integer> maxOrdemOpt = workflowStatusRepository.findMaxOrdemByQuadroId(idQuadro);
+        int novaOrdem = maxOrdemOpt.map(max -> max + 1).orElse(0);
 
         WorkflowStatus novoStatus = new WorkflowStatus();
         novoStatus.setNome(data.nome());
-        novoStatus.setOrdem(ordem);
         novoStatus.setQuadro(quadro);
+        novoStatus.setOrdem(novaOrdem);
 
         workflowStatusRepository.save(novoStatus);
 
