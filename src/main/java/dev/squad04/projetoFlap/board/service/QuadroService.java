@@ -2,7 +2,6 @@ package dev.squad04.projetoFlap.board.service;
 
 import dev.squad04.projetoFlap.board.dto.quadro.AtualizarQuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroDTO;
-import dev.squad04.projetoFlap.board.dto.status.AtualizarStatusDTO;
 import dev.squad04.projetoFlap.board.dto.status.CriarStatusDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
 import dev.squad04.projetoFlap.board.entity.Setor;
@@ -138,27 +137,11 @@ public class QuadroService {
     }
 
     @Transactional
-    public WorkflowStatus atualizarStatus(Integer idStatus, AtualizarStatusDTO data) {
+    public WorkflowStatus atualizarStatus(Integer idStatus, CriarStatusDTO data) {
         WorkflowStatus statusExistente = workflowStatusRepository.findById(idStatus)
                 .orElseThrow(() -> new AppException("Status com ID " + idStatus + " não encontrado.", HttpStatus.NOT_FOUND));
 
-        if (statusExistente.getOrdem().equals(data.ordem())) {
-            statusExistente.setNome(data.nome());
-            return workflowStatusRepository.save(statusExistente);
-        }
-
-        Quadro quadro = statusExistente.getQuadro();
-        Optional<WorkflowStatus> conflito = workflowStatusRepository.findByQuadroIdQuadroAndOrdem(quadro.getIdQuadro(), data.ordem());
-
-        if (conflito.isPresent()) {
-            throw new AppException(
-                    "A ordem " + data.ordem() + " já está em uso pelo status '" + conflito.get().getNome() + "' neste quadro.",
-                    HttpStatus.BAD_REQUEST
-            );
-        }
         statusExistente.setNome(data.nome());
-        statusExistente.setOrdem(data.ordem());
-
         return workflowStatusRepository.save(statusExistente);
     }
 

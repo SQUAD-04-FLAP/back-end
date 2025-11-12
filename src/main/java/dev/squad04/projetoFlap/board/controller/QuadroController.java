@@ -4,7 +4,6 @@ import dev.squad04.projetoFlap.board.dto.quadro.AtualizarQuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroResponseDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.WorkflowStatusDTO;
-import dev.squad04.projetoFlap.board.dto.status.AtualizarStatusDTO;
 import dev.squad04.projetoFlap.board.dto.status.CriarStatusDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
 import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
@@ -111,7 +110,7 @@ public class QuadroController {
     @PutMapping("/status/{idStatus}")
     public ResponseEntity<WorkflowStatusDTO> atualizarStatus(
             @PathVariable Integer idStatus,
-            @RequestBody AtualizarStatusDTO dto) {
+            @RequestBody CriarStatusDTO dto) {
 
         WorkflowStatus statusAtualizado = quadroService.atualizarStatus(idStatus, dto);
         return ResponseEntity.ok(quadroMapper.toStatusDTO(statusAtualizado));
