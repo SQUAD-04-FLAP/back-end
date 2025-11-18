@@ -145,4 +145,7 @@ public class TarefaService {
         return tarefaRepository.save(tarefa);
     }
 
+    public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
+        return tarefaRepository.findByResponsavelIdUsuario(idUsuario);
+    }
 }
