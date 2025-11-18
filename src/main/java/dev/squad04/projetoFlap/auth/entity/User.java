@@ -2,7 +2,6 @@ package dev.squad04.projetoFlap.auth.entity;
 
 import dev.squad04.projetoFlap.auth.enums.AuthProvider;
 import dev.squad04.projetoFlap.auth.enums.UserRole;
-import dev.squad04.projetoFlap.board.entity.Perfil;
 import dev.squad04.projetoFlap.board.entity.PreferenciasInterface;
 import dev.squad04.projetoFlap.board.entity.associations.UsuarioSetor;
 import jakarta.persistence.*;

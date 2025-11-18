@@ -86,6 +86,13 @@ public class TarefaController {
         return ResponseEntity.ok(tarefaMapper.toDTO(tarefa));
     }
 
+    @Operation(summary = "Lista todas as tarefas atribuídas a um usuário específico")
+    @GetMapping("/responsavel/{idUsuario}")
+    public ResponseEntity<List<TarefaResponseDTO>> buscarTarefasPorResponsavel(@PathVariable Integer idUsuario) {
+        List<Tarefa> tarefas = tarefaService.buscarTarefasPorResponsavel(idUsuario);
+        return ResponseEntity.ok(tarefaMapper.toDTOList(tarefas));
+    }
+
     @Operation(summary = "Adiciona um novo comentário a uma tarefa")
     @PostMapping("/comentario/{idTarefa}")
     public ResponseEntity<TarefaResponseDTO> adicionarComentario(@PathVariable Integer idTarefa, @RequestBody AdicionarComentarioDTO data) {

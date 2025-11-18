@@ -1,8 +1,8 @@
 package dev.squad04.projetoFlap.auth.service;
 
-import dev.squad04.projetoFlap.auth.dto.register.ForgotPasswordDTO;
 import dev.squad04.projetoFlap.auth.dto.login.LoggedDTO;
 import dev.squad04.projetoFlap.auth.dto.login.LoginDTO;
+import dev.squad04.projetoFlap.auth.dto.register.ForgotPasswordDTO;
 import dev.squad04.projetoFlap.auth.dto.register.RegisterDTO;
 import dev.squad04.projetoFlap.auth.dto.user.SetUserRoleDTO;
 import dev.squad04.projetoFlap.auth.entity.User;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class AuthService implements UserDetailsService {
@@ -96,16 +95,6 @@ public class AuthService implements UserDetailsService {
         user.setResetCodeExpiry(null);
 
         this.repository.save(user);
-    }
-
-    public User findUserById(Integer id) {
-        Optional<User> user = repository.findById(id);
-
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new AppException("Usuário não encontrado.", HttpStatus.NOT_FOUND);
-        }
     }
 
     public User setUserRole(Integer id, SetUserRoleDTO data) {
