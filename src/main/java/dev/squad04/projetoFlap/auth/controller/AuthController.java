@@ -76,17 +76,6 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Busca um usuário pelo ID", description = "Retorna os dados públicos de um usuário específico.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    })
-    @GetMapping("/user/{idUser}")
-    public ResponseEntity<UserResponseDTO> findUserById(@PathVariable Integer idUser) {
-        User user = this.authService.findUserById(idUser);
-        return ResponseEntity.ok(userMapper.toDTO(user));
-    }
-
     @Operation(summary = "Atualiza a permissão de um usuário pelo ID", description = "Retorna um usuário com dados atualizados, requer permissão ADMIN")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Permissão atualizada"),
