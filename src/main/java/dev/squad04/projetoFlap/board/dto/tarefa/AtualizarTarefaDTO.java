@@ -5,4 +5,6 @@ import java.time.LocalDateTime;
 public record AtualizarTarefaDTO(
         String titulo,
         String descricao,
-        LocalDateTime prazo) {}
+        LocalDateTime dtTermino,
+        Boolean ativo,
+        String prioridade) {}

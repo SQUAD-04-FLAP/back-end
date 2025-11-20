@@ -18,7 +18,8 @@ public record TarefaResponseDTO (
         Integer idResponsavel,
         String nomeResponsavel,
         Set<ComentarioDTO> comentarios,
-        LocalDateTime prazo,
+        LocalDateTime dtTermino,
+        String prioridade,
         Boolean ativo,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
