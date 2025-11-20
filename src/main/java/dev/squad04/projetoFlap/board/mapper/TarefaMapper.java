@@ -31,7 +31,8 @@ public class TarefaMapper {
                 tarefa.getResponsavel() != null ? tarefa.getResponsavel().getIdUsuario() : null,
                 tarefa.getResponsavel() != null ? tarefa.getResponsavel().getNome() : null,
                 comentariosDto,
-                tarefa.getPrazo(),
+                tarefa.getDtTermino(),
+                tarefa.getPrioridade(),
                 tarefa.getAtivo(),
                 tarefa.getCreatedAt(),
                 tarefa.getUpdatedAt()

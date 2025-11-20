@@ -66,7 +66,10 @@ public class TarefaService {
 
         tarefa.setTitulo(data.titulo());
         tarefa.setDescricao(data.descricao());
-        tarefa.setPrazo(data.prazo());
+        tarefa.setDtTermino(data.dtTermino());
+        tarefa.setAtivo(data.ativo());
+        tarefa.setPrioridade(data.prioridade());
+        tarefa.setUpdatedAt(LocalDateTime.now());
 
         return tarefaRepository.save(tarefa);
     }

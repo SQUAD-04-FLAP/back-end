@@ -4,10 +4,8 @@ import dev.squad04.projetoFlap.board.dto.quadro.AtualizarQuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroDTO;
 import dev.squad04.projetoFlap.board.dto.status.CriarStatusDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
-import dev.squad04.projetoFlap.board.entity.Setor;
 import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
 import dev.squad04.projetoFlap.board.repository.QuadroRepository;
-import dev.squad04.projetoFlap.board.repository.SetorRepository;
 import dev.squad04.projetoFlap.board.repository.TarefaRepository;
 import dev.squad04.projetoFlap.board.repository.WorkflowStatusRepository;
 import dev.squad04.projetoFlap.exceptions.AppException;
@@ -24,25 +22,21 @@ import java.util.Optional;
 public class QuadroService {
 
     private final QuadroRepository quadroRepository;
-    private final SetorRepository setorRepository;
     private final WorkflowStatusRepository workflowStatusRepository;
     private final TarefaRepository tarefaRepository;
 
-    public QuadroService(QuadroRepository quadroRepository, SetorRepository setorRepository, WorkflowStatusRepository workflowStatusRepository, TarefaRepository tarefaRepository) {
+    public QuadroService(QuadroRepository quadroRepository, WorkflowStatusRepository workflowStatusRepository, TarefaRepository tarefaRepository) {
         this.quadroRepository = quadroRepository;
-        this.setorRepository = setorRepository;
         this.workflowStatusRepository = workflowStatusRepository;
         this.tarefaRepository = tarefaRepository;
     }
 
     @Transactional
     public Quadro criarQuadroComStatus(QuadroDTO data) {
-        Setor setor = setorRepository.findById(data.idSetor())
-                .orElseThrow(() -> new AppException("Setor não encontrado", HttpStatus.NOT_FOUND));
 
         Quadro novoQuadro = new Quadro();
         novoQuadro.setNome(data.nome());
-        novoQuadro.setSetor(setor);
+        novoQuadro.setSetor(null);
         novoQuadro.setAtivo(true);
         novoQuadro.setWorkflowStatus(new HashSet<>());
         novoQuadro.setCreatedAt(LocalDateTime.now());
@@ -82,18 +76,7 @@ public class QuadroService {
     public Quadro atualizarQuadro(Integer idQuadro, AtualizarQuadroDTO data) {
         Quadro quadroExistente = buscarPorId(idQuadro);
 
-        Setor novoSetor = null;
-        if (data.idSetor() != null) {
-            novoSetor = setorRepository.findById(data.idSetor())
-                    .orElseThrow(() -> new AppException(
-                            "Setor de destino com ID " + data.idSetor() + " não encontrado.", HttpStatus.NOT_FOUND
-                    ));
-        } else {
-            novoSetor = quadroExistente.getSetor();
-        }
-
         quadroExistente.setNome(data.nome());
-        quadroExistente.setSetor(novoSetor);
         quadroExistente.setAtivo(data.ativo());
         quadroExistente.setUpdatedAt(LocalDateTime.now());
 
