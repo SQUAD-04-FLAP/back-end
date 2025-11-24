@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -50,8 +51,9 @@ public class User implements UserDetails {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDate dtNascimento;
 
-    public User(String nome, String email, String senha, UserRole permissao, AuthProvider provedor) {
+    public User(String nome, String email, String senha, UserRole permissao, AuthProvider provedor, LocalDate dtNascimento) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
@@ -59,6 +61,7 @@ public class User implements UserDetails {
         this.provedor = provedor;
         this.ativo = true;
         this.createdAt = LocalDateTime.now();
+        this.dtNascimento = dtNascimento;
     }
 
     @Override

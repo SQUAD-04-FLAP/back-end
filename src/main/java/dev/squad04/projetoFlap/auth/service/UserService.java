@@ -45,6 +45,7 @@ public class UserService {
 
         user.setAtivo(data.ativo());
         user.setUpdatedAt(LocalDateTime.now());
+        user.setDtNascimento(data.dtNascimento());
 
         return userRepository.save(user);
     }
