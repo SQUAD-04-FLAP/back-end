@@ -53,6 +53,8 @@ public class TarefaService {
         novaTarefa.setCriadoPor(criador);
         novaTarefa.setQuadro(quadro);
         novaTarefa.setStatus(statusInicial);
+        novaTarefa.setDtTermino(data.dtTermino());
+        novaTarefa.setPrioridade(data.prioridade());
         novaTarefa.setAtivo(true);
         novaTarefa.setCreatedAt(LocalDateTime.now());
         novaTarefa.setUpdatedAt(LocalDateTime.now());
