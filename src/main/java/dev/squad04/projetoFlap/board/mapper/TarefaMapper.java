@@ -1,6 +1,7 @@
 package dev.squad04.projetoFlap.board.mapper;
 
 import dev.squad04.projetoFlap.board.dto.comentario.ComentarioDTO;
+import dev.squad04.projetoFlap.board.dto.tarefa.ResponsavelDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.TarefaResponseDTO;
 import dev.squad04.projetoFlap.board.entity.Comentario;
 import dev.squad04.projetoFlap.board.entity.Tarefa;
@@ -18,20 +19,44 @@ public class TarefaMapper {
                 .map(this::toComentarioDTO)
                 .collect(Collectors.toSet());
 
+        Set<ResponsavelDTO> responsaveisDto = tarefa.getResponsaveis().stream()
+                .map(user -> new ResponsavelDTO(user.getIdUsuario(), user.getNome(), user.getEmail()))
+                .collect(Collectors.toSet());
+
+        String nomeSetor = null;
+        if (tarefa.getQuadro() != null && tarefa.getQuadro().getSetor() != null) {
+            nomeSetor = tarefa.getQuadro().getSetor().getNome();
+        }
+
+        Integer idStatus = null;
+        String nomeStatus = null;
+        if (tarefa.getStatus() != null) {
+            idStatus = tarefa.getStatus().getIdStatus();
+            nomeStatus = tarefa.getStatus().getNome();
+        }
+
+        Integer idCriador = null;
+        String nomeCriador = null;
+        if (tarefa.getCriadoPor() != null) {
+            idCriador = tarefa.getCriadoPor().getIdUsuario();
+            nomeCriador = tarefa.getCriadoPor().getNome();
+        }
+
         return new TarefaResponseDTO(
                 tarefa.getIdTarefa(),
                 tarefa.getTitulo(),
                 tarefa.getDescricao(),
                 tarefa.getQuadro().getIdQuadro(),
                 tarefa.getQuadro().getNome(),
-                tarefa.getStatus().getIdStatus(),
-                tarefa.getStatus().getNome(),
-                tarefa.getCriadoPor().getIdUsuario(),
-                tarefa.getCriadoPor().getNome(),
-                tarefa.getResponsavel() != null ? tarefa.getResponsavel().getIdUsuario() : null,
-                tarefa.getResponsavel() != null ? tarefa.getResponsavel().getNome() : null,
+                idStatus,
+                nomeStatus,
+                idCriador,
+                nomeCriador,
+                nomeSetor,
+                responsaveisDto,
                 comentariosDto,
-                tarefa.getPrazo(),
+                tarefa.getDtTermino(),
+                tarefa.getPrioridade(),
                 tarefa.getAtivo(),
                 tarefa.getCreatedAt(),
                 tarefa.getUpdatedAt()

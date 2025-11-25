@@ -9,6 +9,7 @@ import dev.squad04.projetoFlap.board.mapper.SetorMapper;
 import dev.squad04.projetoFlap.board.service.SetorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,5 +59,42 @@ public class SetorController {
     public ResponseEntity<List<Setor>> listarTodos() {
         List<Setor> setores = setorService.listarTodos();
         return ResponseEntity.ok(setores);
+    }
+
+    @Operation(summary = "Busca um setor pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Setor encontrado"),
+            @ApiResponse(responseCode = "404", description = "Setor não encontrado")
+    })
+    @GetMapping("/{idSetor}")
+    public ResponseEntity<Setor> buscarSetorPorId(@PathVariable Integer idSetor) {
+        Setor setor = setorService.buscarPorId(idSetor);
+        return ResponseEntity.ok(setor);
+    }
+
+    @Operation(summary = "Atualiza os dados de um setor")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Setor atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Setor não encontrado"),
+            @ApiResponse(responseCode = "409", description = "Nome de setor já em uso")
+    })
+    @PutMapping("/{idSetor}")
+    public ResponseEntity<Setor> atualizarSetor(
+            @PathVariable Integer idSetor,
+            @RequestBody CriarSetorDTO data) {
+
+        Setor setorAtualizado = setorService.atualizarSetor(idSetor, data);
+        return ResponseEntity.ok(setorAtualizado);
+    }
+
+    @Operation(summary = "Exclui um setor")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Setor excluído com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Setor não encontrado")
+    })
+    @DeleteMapping("/{idSetor}")
+    public ResponseEntity<Void> deletarSetor(@PathVariable Integer idSetor) {
+        setorService.deletarSetor(idSetor);
+        return ResponseEntity.noContent().build();
     }
 }

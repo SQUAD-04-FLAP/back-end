@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -36,21 +37,26 @@ public class Tarefa {
     @JoinColumn(name = "criado_por")
     private User criadoPor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsavel")
-    private User responsavel;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "tarefas_responsaveis",
+            joinColumns = @JoinColumn(name = "id_tarefa"),
+            inverseJoinColumns = @JoinColumn(name = "id_usuario")
+    )
+    private Set<User> responsaveis = new HashSet<>();
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Historico> historicos;
+    private Set<Historico> historicos = new HashSet<>();
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TarefaStatusHistory> historicosDeStatus;
+    private Set<TarefaStatusHistory> historicosDeStatus = new HashSet<>();
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Comentario> comentarios;
+    private Set<Comentario> comentarios = new HashSet<>();
 
-    private LocalDateTime prazo;
+    private LocalDateTime dtTermino;
     private Boolean ativo;
+    private String prioridade;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

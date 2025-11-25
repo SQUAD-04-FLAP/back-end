@@ -51,9 +51,9 @@ public class PerfilController {
         return ResponseEntity.ok(perfis);
     }
 
-    @Operation(summary = "Busca um perfil pelo ID")
+    @Operation(summary = "Atualiza um perfil existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil encontrado"),
+            @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Perfil não encontrado")
     })
     @PutMapping("/id/{idPerfil}")

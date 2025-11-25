@@ -2,7 +2,6 @@ package dev.squad04.projetoFlap.auth.entity;
 
 import dev.squad04.projetoFlap.auth.enums.AuthProvider;
 import dev.squad04.projetoFlap.auth.enums.UserRole;
-import dev.squad04.projetoFlap.board.entity.Perfil;
 import dev.squad04.projetoFlap.board.entity.PreferenciasInterface;
 import dev.squad04.projetoFlap.board.entity.associations.UsuarioSetor;
 import jakarta.persistence.*;
@@ -14,8 +13,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,20 +44,24 @@ public class User implements UserDetails {
     private AuthProvider provedor;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UsuarioSetor> associacoesSetor;
+    private Set<UsuarioSetor> associacoesSetor = new HashSet<>();
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private PreferenciasInterface preferencias;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDate dtNascimento;
 
-    public User(String nome, String email, String senha, UserRole permissao, AuthProvider provedor) {
+    public User(String nome, String email, String senha, UserRole permissao, AuthProvider provedor, LocalDate dtNascimento) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.permissao = permissao;
         this.provedor = provedor;
+        this.ativo = true;
+        this.createdAt = LocalDateTime.now();
+        this.dtNascimento = dtNascimento;
     }
 
     @Override

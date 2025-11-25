@@ -6,6 +6,7 @@ import dev.squad04.projetoFlap.board.mapper.TarefaMapper;
 import dev.squad04.projetoFlap.board.service.TarefaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +35,33 @@ public class TarefaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(tarefaMapper.toDTO(novaTarefa));
     }
 
+    @Operation(summary = "Atualiza os dados de uma tarefa")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tarefa atualizada"),
+            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+    })
+    @PutMapping("/{idTarefa}")
+    public ResponseEntity<TarefaResponseDTO> atualizarTarefa(@PathVariable Integer idTarefa, @RequestBody AtualizarTarefaDTO data) {
+        Tarefa tarefaAtualizada = tarefaService.atualizarTarefa(idTarefa, data);
+        return ResponseEntity.ok(tarefaMapper.toDTO(tarefaAtualizada));
+    }
+
     @Operation(summary = "Busca todas as tarefas de um quadro")
     @GetMapping("/quadro/{idQuadro}")
     public ResponseEntity<List<TarefaResponseDTO>> buscarTarefaPorQuadro(@PathVariable Integer idQuadro) {
         List<Tarefa> tarefas = tarefaService.buscarTarefasPorQuadro(idQuadro);
         return ResponseEntity.ok(tarefaMapper.toDTOList(tarefas));
+    }
+
+    @Operation(summary = "Busca uma tarefa pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tarefa encontrada"),
+            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+    })
+    @GetMapping("/{idTarefa}")
+    public ResponseEntity<TarefaResponseDTO> buscarTarefaPorId(@PathVariable Integer idTarefa) {
+        Tarefa tarefa = tarefaService.buscarPorId(idTarefa);
+        return ResponseEntity.ok(tarefaMapper.toDTO(tarefa));
     }
 
     @Operation(summary = "Move uma tarefa para um novo status", description = "Altera o status de uma tarefa e cria um registro de histórico.")
@@ -56,11 +79,18 @@ public class TarefaController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Atribui um usuário como responsável por uma tarefa")
+    @Operation(summary = "Atribui ou desatribui um usuário como responsável por uma tarefa")
     @PatchMapping("/responsavel/{idTarefa}")
-    public ResponseEntity<TarefaResponseDTO> atribuirResponsavel(@PathVariable Integer idTarefa, @RequestBody AtribuirResponsavelDTO data) {
-        Tarefa tarefa = tarefaService.atribuirResponsavel(idTarefa, data);
+    public ResponseEntity<TarefaResponseDTO> atualizarResponsaveis(@PathVariable Integer idTarefa, @RequestBody AtribuirResponsavelDTO data) {
+        Tarefa tarefa = tarefaService.atualizarResponsaveis(idTarefa, data);
         return ResponseEntity.ok(tarefaMapper.toDTO(tarefa));
+    }
+
+    @Operation(summary = "Lista todas as tarefas atribuídas a um usuário específico")
+    @GetMapping("/responsavel/{idUsuario}")
+    public ResponseEntity<List<TarefaResponseDTO>> buscarTarefasPorResponsavel(@PathVariable Integer idUsuario) {
+        List<Tarefa> tarefas = tarefaService.buscarTarefasPorResponsavel(idUsuario);
+        return ResponseEntity.ok(tarefaMapper.toDTOList(tarefas));
     }
 
     @Operation(summary = "Adiciona um novo comentário a uma tarefa")

@@ -2,10 +2,7 @@ package dev.squad04.projetoFlap.board.service;
 
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
-import dev.squad04.projetoFlap.board.dto.tarefa.AdicionarComentarioDTO;
-import dev.squad04.projetoFlap.board.dto.tarefa.AtribuirResponsavelDTO;
-import dev.squad04.projetoFlap.board.dto.tarefa.CriarTarefaDTO;
-import dev.squad04.projetoFlap.board.dto.tarefa.MoverTarefaDTO;
+import dev.squad04.projetoFlap.board.dto.tarefa.*;
 import dev.squad04.projetoFlap.board.entity.Comentario;
 import dev.squad04.projetoFlap.board.entity.Quadro;
 import dev.squad04.projetoFlap.board.entity.Tarefa;
@@ -20,7 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TarefaService {
@@ -39,22 +39,49 @@ public class TarefaService {
 
     @Transactional
     public Tarefa criarTarefa(CriarTarefaDTO data) {
-        User criador = userRepository.findById(data.idCriador())
+        if (data.idQuadro() == null) {
+            throw new AppException("O ID do quadro é obrigatório.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (data.idCriador() == null) {
+            throw new AppException("O ID do criador é obrigatório.", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userRepository.findById(data.idCriador())
                 .orElseThrow(() -> new AppException("Usuário criador não encontrado", HttpStatus.NOT_FOUND));
 
         Quadro quadro = quadroRepository.findById(data.idQuadro())
                 .orElseThrow(() -> new AppException("Quadro não encontrado", HttpStatus.NOT_FOUND));
 
+        if (data.idSetor() != null) {
+            if (quadro.getSetor() == null || !quadro.getSetor().getIdSetor().equals(data.idSetor())) {
+                throw new AppException("O quadro informado não pertence à empresa/setor selecionado", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        Set<User> responsaveis = new HashSet<>();
+        if (data.idsResponsaveis() != null && !data.idsResponsaveis().isEmpty()) {
+            List<User> usersFounded = userRepository.findAllById(data.idsResponsaveis());
+
+            if (usersFounded.size() != data.idsResponsaveis().size()) {
+                throw new AppException("Um ou mais usuários responsáveis não foram encontrados", HttpStatus.NOT_FOUND);
+            }
+            responsaveis.addAll(usersFounded);
+        }
+
         WorkflowStatus statusInicial = quadro.getWorkflowStatus().stream()
-                .min((s1, s2) -> Integer.compare(s1.getOrdem(), s2.getOrdem()))
+                .min(Comparator.comparingInt(WorkflowStatus::getOrdem))
                 .orElseThrow(() -> new AppException("O quadro não possui status definidos", HttpStatus.BAD_REQUEST));
 
         Tarefa novaTarefa = new Tarefa();
         novaTarefa.setTitulo(data.titulo());
         novaTarefa.setDescricao(data.descricao());
-        novaTarefa.setCriadoPor(criador);
+        novaTarefa.setCriadoPor(user);
+        novaTarefa.setResponsaveis(responsaveis);
         novaTarefa.setQuadro(quadro);
         novaTarefa.setStatus(statusInicial);
+        novaTarefa.setDtTermino(data.dtTermino());
+        novaTarefa.setPrioridade(data.prioridade());
         novaTarefa.setAtivo(true);
         novaTarefa.setCreatedAt(LocalDateTime.now());
         novaTarefa.setUpdatedAt(LocalDateTime.now());
@@ -62,14 +89,32 @@ public class TarefaService {
         return tarefaRepository.save(novaTarefa);
     }
 
+    @Transactional
+    public Tarefa atualizarTarefa(Integer idTarefa, AtualizarTarefaDTO data) {
+        Tarefa tarefa = buscarPorId(idTarefa);
+
+        tarefa.setTitulo(data.titulo());
+        tarefa.setDescricao(data.descricao());
+        tarefa.setDtTermino(data.dtTermino());
+        tarefa.setAtivo(data.ativo());
+        tarefa.setPrioridade(data.prioridade());
+        tarefa.setUpdatedAt(LocalDateTime.now());
+
+        return tarefaRepository.save(tarefa);
+    }
+
     public List<Tarefa> buscarTarefasPorQuadro(Integer idQuadro) {
         return tarefaRepository.findByQuadroIdQuadro(idQuadro);
     }
 
+    public Tarefa buscarPorId(Integer idTarefa) {
+        return tarefaRepository.findById(idTarefa)
+                .orElseThrow(() -> new AppException("Tarefa com ID " + idTarefa + " não encontrada.", HttpStatus.NOT_FOUND));
+    }
+
     @Transactional
     public Tarefa moverTarefaParaStatus(Integer idTarefa, MoverTarefaDTO data) {
-        Tarefa tarefa = tarefaRepository.findById(idTarefa)
-                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
+        Tarefa tarefa = buscarPorId(idTarefa);
 
         User usuarioLogado = userRepository.findById(data.idUsuarioLogado())
                 .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
@@ -105,21 +150,24 @@ public class TarefaService {
     }
 
     @Transactional
-    public Tarefa atribuirResponsavel(Integer idTarefa, AtribuirResponsavelDTO idResponsavel) {
-        Tarefa tarefa = tarefaRepository.findById(idTarefa)
-                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
+    public Tarefa atualizarResponsaveis(Integer idTarefa, AtribuirResponsavelDTO idResponsavel) {
+        Tarefa tarefa = buscarPorId(idTarefa);
 
-        User responsavel = userRepository.findById(idResponsavel.idResponsavel())
+        User usuarioAlvo = userRepository.findById(idResponsavel.idResponsavel())
                 .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
 
-        tarefa.setResponsavel(responsavel);
+        if (tarefa.getResponsaveis().contains(usuarioAlvo)) {
+            tarefa.getResponsaveis().remove(usuarioAlvo);
+        } else {
+            tarefa.getResponsaveis().add(usuarioAlvo);
+        }
+
         return tarefaRepository.save(tarefa);
     }
 
     @Transactional
     public Tarefa adicionarComentario(Integer idTarefa, AdicionarComentarioDTO data) {
-        Tarefa tarefa = tarefaRepository.findById(idTarefa)
-                .orElseThrow(() -> new AppException("Tarefa não encontrada!", HttpStatus.NOT_FOUND));
+        Tarefa tarefa = buscarPorId(idTarefa);
 
         User autor = userRepository.findById(data.idUsuario())
                 .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
@@ -134,4 +182,7 @@ public class TarefaService {
         return tarefaRepository.save(tarefa);
     }
 
+    public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
+        return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
+    }
 }

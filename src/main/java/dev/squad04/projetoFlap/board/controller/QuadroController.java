@@ -1,8 +1,12 @@
 package dev.squad04.projetoFlap.board.controller;
 
+import dev.squad04.projetoFlap.board.dto.quadro.AtualizarQuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroDTO;
 import dev.squad04.projetoFlap.board.dto.quadro.QuadroResponseDTO;
+import dev.squad04.projetoFlap.board.dto.quadro.WorkflowStatusDTO;
+import dev.squad04.projetoFlap.board.dto.status.CriarStatusDTO;
 import dev.squad04.projetoFlap.board.entity.Quadro;
+import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
 import dev.squad04.projetoFlap.board.mapper.QuadroMapper;
 import dev.squad04.projetoFlap.board.service.QuadroService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,5 +49,81 @@ public class QuadroController {
     public ResponseEntity<List<QuadroResponseDTO>> listarPorSetor(@PathVariable Integer idSetor) {
         List<Quadro> quadros = quadroService.listarPorSetor(idSetor);
         return ResponseEntity.ok(quadroMapper.toDTOList(quadros));
+    }
+
+    @Operation(summary = "Busca um quadro pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Quadro encontrado"),
+            @ApiResponse(responseCode = "404", description = "Quadro não encontrado")
+    })
+    @GetMapping("/{idQuadro}")
+    public ResponseEntity<QuadroResponseDTO> buscarQuadroPorId(@PathVariable Integer idQuadro) {
+        Quadro quadro = quadroService.buscarPorId(idQuadro);
+        return ResponseEntity.ok(quadroMapper.toDTO(quadro));
+    }
+
+    @Operation(summary = "Busca todos os quadros")
+    @ApiResponse(responseCode = "200", description = "Lista de todos os quadros")
+    @GetMapping
+    public ResponseEntity<List<QuadroResponseDTO>> buscarTodosQuadros() {
+        List<Quadro> quadros = quadroService.buscarTodosQuadros();
+        return ResponseEntity.ok(quadroMapper.toDTOList(quadros));
+    }
+
+    @Operation(summary = "Atualiza os dados de um quadro")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Quadro atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Quadro ou Setor de destino não encontrado")
+    })
+    @PutMapping("/{idQuadro}")
+    public ResponseEntity<QuadroResponseDTO> atualizarQuadro(
+            @PathVariable Integer idQuadro, @RequestBody AtualizarQuadroDTO dto) {
+
+        Quadro quadroAtualizado = quadroService.atualizarQuadro(idQuadro, dto);
+        return ResponseEntity.ok(quadroMapper.toDTO(quadroAtualizado));
+    }
+
+    @Operation(summary = "Deleta um quadro pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Quadro deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Quadro não encontrado")
+    })
+    @DeleteMapping("/{idQuadro}")
+    public ResponseEntity<Void> deletarQuadro(@PathVariable Integer idQuadro) {
+        quadroService.deletarQuadro(idQuadro);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Adiciona um novo status (coluna) a um quadro")
+    @ApiResponse(responseCode = "200", description = "Status adicionado, retorna o quadro atualizado")
+    @PostMapping("/{idQuadro}/status")
+    public ResponseEntity<QuadroResponseDTO> adicionarStatus(
+            @PathVariable Integer idQuadro,
+            @RequestBody CriarStatusDTO dto) {
+
+        Quadro quadroAtualizado = quadroService.adicionarStatusAoQuadro(idQuadro, dto);
+        return ResponseEntity.ok(quadroMapper.toDTO(quadroAtualizado));
+    }
+
+    @Operation(summary = "Atualiza um status (coluna) existente")
+    @ApiResponse(responseCode = "200", description = "Status atualizado")
+    @PutMapping("/status/{idStatus}")
+    public ResponseEntity<WorkflowStatusDTO> atualizarStatus(
+            @PathVariable Integer idStatus,
+            @RequestBody CriarStatusDTO dto) {
+
+        WorkflowStatus statusAtualizado = quadroService.atualizarStatus(idStatus, dto);
+        return ResponseEntity.ok(quadroMapper.toStatusDTO(statusAtualizado));
+    }
+
+    @Operation(summary = "Exclui um status (coluna) de um quadro")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Status excluído com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Não é possível excluir, status ainda possui tarefas")
+    })
+    @DeleteMapping("/status/{idStatus}")
+    public ResponseEntity<Void> deletarStatus(@PathVariable Integer idStatus) {
+        quadroService.deletarStatus(idStatus);
+        return ResponseEntity.noContent().build();
     }
 }

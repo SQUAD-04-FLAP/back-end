@@ -28,7 +28,8 @@ public class UserMapper {
                 setoresDto,
                 usuario.getProvedor(),
                 usuario.getCreatedAt(),
-                usuario.getUpdatedAt()
+                usuario.getUpdatedAt(),
+                usuario.getDtNascimento()
         );
     }
 

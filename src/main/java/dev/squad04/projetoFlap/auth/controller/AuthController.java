@@ -5,6 +5,7 @@ import dev.squad04.projetoFlap.auth.dto.login.LoginDTO;
 import dev.squad04.projetoFlap.auth.dto.register.ForgotPasswordDTO;
 import dev.squad04.projetoFlap.auth.dto.register.RegisterDTO;
 import dev.squad04.projetoFlap.auth.dto.register.ResetPasswordDTO;
+import dev.squad04.projetoFlap.auth.dto.user.SetUserRoleDTO;
 import dev.squad04.projetoFlap.auth.dto.user.UserResponseDTO;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.mapper.UserMapper;
@@ -75,14 +76,15 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Busca um usuário pelo ID", description = "Retorna os dados públicos de um usuário específico.")
+    @Operation(summary = "Atualiza a permissão de um usuário pelo ID", description = "Retorna um usuário com dados atualizados, requer permissão ADMIN")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+            @ApiResponse(responseCode = "200", description = "Permissão atualizada"),
+            @ApiResponse(responseCode = "401", description = "Usuário com permissão insuficiente"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
-    @GetMapping("/user/{idUser}")
-    public ResponseEntity<UserResponseDTO> findUserById(@PathVariable Integer idUser) {
-        User user = this.authService.findUserById(idUser);
+    @PatchMapping("/update-role/{idUser}")
+    public ResponseEntity<UserResponseDTO> setUserRole(@PathVariable Integer idUser, @RequestBody SetUserRoleDTO data) {
+        User user = this.authService.setUserRole(idUser, data);
         return ResponseEntity.ok(userMapper.toDTO(user));
     }
 }
