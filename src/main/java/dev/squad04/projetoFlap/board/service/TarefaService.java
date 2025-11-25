@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TarefaService {
@@ -37,11 +39,35 @@ public class TarefaService {
 
     @Transactional
     public Tarefa criarTarefa(CriarTarefaDTO data) {
-        User criador = userRepository.findById(data.idCriador())
+        if (data.idQuadro() == null) {
+            throw new AppException("O ID do quadro é obrigatório.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (data.idCriador() == null) {
+            throw new AppException("O ID do criador é obrigatório.", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userRepository.findById(data.idCriador())
                 .orElseThrow(() -> new AppException("Usuário criador não encontrado", HttpStatus.NOT_FOUND));
 
         Quadro quadro = quadroRepository.findById(data.idQuadro())
                 .orElseThrow(() -> new AppException("Quadro não encontrado", HttpStatus.NOT_FOUND));
+
+        if (data.idSetor() != null) {
+            if (quadro.getSetor() == null || !quadro.getSetor().getIdSetor().equals(data.idSetor())) {
+                throw new AppException("O quadro informado não pertence à empresa/setor selecionado", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        Set<User> responsaveis = new HashSet<>();
+        if (data.idsResponsaveis() != null && !data.idsResponsaveis().isEmpty()) {
+            List<User> usersFounded = userRepository.findAllById(data.idsResponsaveis());
+
+            if (usersFounded.size() != data.idsResponsaveis().size()) {
+                throw new AppException("Um ou mais usuários responsáveis não foram encontrados", HttpStatus.NOT_FOUND);
+            }
+            responsaveis.addAll(usersFounded);
+        }
 
         WorkflowStatus statusInicial = quadro.getWorkflowStatus().stream()
                 .min(Comparator.comparingInt(WorkflowStatus::getOrdem))
@@ -50,7 +76,8 @@ public class TarefaService {
         Tarefa novaTarefa = new Tarefa();
         novaTarefa.setTitulo(data.titulo());
         novaTarefa.setDescricao(data.descricao());
-        novaTarefa.setCriadoPor(criador);
+        novaTarefa.setCriadoPor(user);
+        novaTarefa.setResponsaveis(responsaveis);
         novaTarefa.setQuadro(quadro);
         novaTarefa.setStatus(statusInicial);
         novaTarefa.setDtTermino(data.dtTermino());
@@ -123,13 +150,18 @@ public class TarefaService {
     }
 
     @Transactional
-    public Tarefa atribuirResponsavel(Integer idTarefa, AtribuirResponsavelDTO idResponsavel) {
+    public Tarefa atualizarResponsaveis(Integer idTarefa, AtribuirResponsavelDTO idResponsavel) {
         Tarefa tarefa = buscarPorId(idTarefa);
 
-        User responsavel = userRepository.findById(idResponsavel.idResponsavel())
+        User usuarioAlvo = userRepository.findById(idResponsavel.idResponsavel())
                 .orElseThrow(() -> new AppException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
 
-        tarefa.setResponsavel(responsavel);
+        if (tarefa.getResponsaveis().contains(usuarioAlvo)) {
+            tarefa.getResponsaveis().remove(usuarioAlvo);
+        } else {
+            tarefa.getResponsaveis().add(usuarioAlvo);
+        }
+
         return tarefaRepository.save(tarefa);
     }
 
@@ -151,6 +183,6 @@ public class TarefaService {
     }
 
     public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
-        return tarefaRepository.findByResponsavelIdUsuario(idUsuario);
+        return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
     }
 }

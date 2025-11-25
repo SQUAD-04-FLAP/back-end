@@ -37,9 +37,13 @@ public class Tarefa {
     @JoinColumn(name = "criado_por")
     private User criadoPor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsavel")
-    private User responsavel;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "tarefas_responsaveis",
+            joinColumns = @JoinColumn(name = "id_tarefa"),
+            inverseJoinColumns = @JoinColumn(name = "id_usuario")
+    )
+    private Set<User> responsaveis = new HashSet<>();
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Historico> historicos = new HashSet<>();

@@ -79,10 +79,10 @@ public class TarefaController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Atribui um usuário como responsável por uma tarefa")
+    @Operation(summary = "Atribui ou desatribui um usuário como responsável por uma tarefa")
     @PatchMapping("/responsavel/{idTarefa}")
-    public ResponseEntity<TarefaResponseDTO> atribuirResponsavel(@PathVariable Integer idTarefa, @RequestBody AtribuirResponsavelDTO data) {
-        Tarefa tarefa = tarefaService.atribuirResponsavel(idTarefa, data);
+    public ResponseEntity<TarefaResponseDTO> atualizarResponsaveis(@PathVariable Integer idTarefa, @RequestBody AtribuirResponsavelDTO data) {
+        Tarefa tarefa = tarefaService.atualizarResponsaveis(idTarefa, data);
         return ResponseEntity.ok(tarefaMapper.toDTO(tarefa));
     }
 
