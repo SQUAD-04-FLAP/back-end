@@ -39,6 +39,14 @@ public class TarefaService {
 
     @Transactional
     public Tarefa criarTarefa(CriarTarefaDTO data) {
+        if (data.idQuadro() == null) {
+            throw new AppException("O ID do quadro é obrigatório.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (data.idCriador() == null) {
+            throw new AppException("O ID do criador é obrigatório.", HttpStatus.BAD_REQUEST);
+        }
+
         User user = userRepository.findById(data.idCriador())
                 .orElseThrow(() -> new AppException("Usuário criador não encontrado", HttpStatus.NOT_FOUND));
 
@@ -175,6 +183,6 @@ public class TarefaService {
     }
 
     public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
-        return tarefaRepository.findByResponsaveisIdUsuario( idUsuario);
+        return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
     }
 }
