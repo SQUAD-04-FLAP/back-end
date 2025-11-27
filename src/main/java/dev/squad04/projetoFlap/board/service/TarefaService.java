@@ -101,6 +101,17 @@ public class TarefaService {
         tarefa.setPrioridade(data.prioridade());
         tarefa.setUpdatedAt(LocalDateTime.now());
 
+        Set<User> responsaveis = new HashSet<>();
+        if (data.idsResponsaveis() != null && !data.idsResponsaveis().isEmpty()) {
+            List<User> usersFounded = userRepository.findAllById(data.idsResponsaveis());
+
+            if (usersFounded.size() != data.idsResponsaveis().size()) {
+                throw new AppException("Um ou mais usuários responsáveis não foram encontrados", HttpStatus.NOT_FOUND);
+            }
+            responsaveis.addAll(usersFounded);
+        }
+        tarefa.setResponsaveis(responsaveis);
+
         return tarefaRepository.save(tarefa);
     }
 
