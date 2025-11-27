@@ -30,6 +30,10 @@ public class Tarefa {
     private Quadro quadro;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_setor")
+    private Setor setor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_status")
     private WorkflowStatus status;
 
