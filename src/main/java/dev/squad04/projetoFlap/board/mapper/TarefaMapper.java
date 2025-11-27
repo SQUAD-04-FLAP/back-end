@@ -24,8 +24,17 @@ public class TarefaMapper {
                 .collect(Collectors.toSet());
 
         String nomeSetor = null;
-        if (tarefa.getQuadro() != null && tarefa.getQuadro().getSetor() != null) {
+        if (tarefa.getSetor() != null) {
+            nomeSetor = tarefa.getSetor().getNome();
+        } else if (tarefa.getQuadro() != null && tarefa.getQuadro().getSetor() != null) {
             nomeSetor = tarefa.getQuadro().getSetor().getNome();
+        }
+
+        Integer idQuadro = null;
+        String nomeQuadro = null;
+        if (tarefa.getQuadro() != null) {
+            idQuadro = tarefa.getQuadro().getIdQuadro();
+            nomeQuadro = tarefa.getQuadro().getNome();
         }
 
         Integer idStatus = null;
@@ -46,8 +55,8 @@ public class TarefaMapper {
                 tarefa.getIdTarefa(),
                 tarefa.getTitulo(),
                 tarefa.getDescricao(),
-                tarefa.getQuadro().getIdQuadro(),
-                tarefa.getQuadro().getNome(),
+                idQuadro,
+                nomeQuadro,
                 idStatus,
                 nomeStatus,
                 idCriador,
