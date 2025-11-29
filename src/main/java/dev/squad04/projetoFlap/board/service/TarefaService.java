@@ -112,6 +112,11 @@ public class TarefaService {
         }
         tarefa.setResponsaveis(responsaveis);
 
+        Setor setor = setorRepository.findById(data.idSetor())
+                .orElseThrow(() -> new AppException("Empresa/Setor não encontrado", HttpStatus.NOT_FOUND));
+
+        tarefa.setSetor(setor);
+
         return tarefaRepository.save(tarefa);
     }
 

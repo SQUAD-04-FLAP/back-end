@@ -9,4 +9,5 @@ public record AtualizarTarefaDTO(
         LocalDateTime dtTermino,
         Boolean ativo,
         String prioridade,
+        Integer idSetor,
         List<Integer> idsResponsaveis) {}
