@@ -201,4 +201,14 @@ public class TarefaService {
     public List<Tarefa> buscarTarefasPorSetor(Integer idSetor) {
         return tarefaRepository.findBySetorIdSetor(idSetor);
     }
+
+    public List<Tarefa> buscarTarefasProximasAoVencimento(Integer idSetor) {
+        if (idSetor != null) {
+            if (!setorRepository.existsById(idSetor)) {
+                throw new AppException("Setor/empresa não encontrado!", HttpStatus.NOT_FOUND);
+            }
+            return tarefaRepository.findTop10BySetorIdSetorAndAtivoTrueOrderByDtTerminoAsc(idSetor);
+        }
+        return tarefaRepository.findTop10ByAtivoTrueOrderByDtTerminoAsc();
+    }
 }
