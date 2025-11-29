@@ -197,4 +197,8 @@ public class TarefaService {
     public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
         return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
     }
+
+    public List<Tarefa> buscarTarefasPorSetor(Integer idSetor) {
+        return tarefaRepository.findBySetorIdSetor(idSetor);
+    }
 }
