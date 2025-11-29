@@ -4,9 +4,11 @@ import dev.squad04.projetoFlap.auth.dto.user.UpdateUserDTO;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.exceptions.AppException;
+import dev.squad04.projetoFlap.file.service.FileStorageService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,9 +18,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, FileStorageService fileStorageService) {
         this.userRepository = userRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     public User findUserById(Integer id) {
@@ -54,5 +58,18 @@ public class UserService {
     public void deleteUser(Integer idUsuario) {
         User user = findUserById(idUsuario);
         userRepository.delete(user);
+    }
+
+    @Transactional
+    public User saveProfilePhoto(Integer idUsuario, MultipartFile file) {
+        User user = findUserById(idUsuario);
+
+        if (user.getFotoUrl() != null) {
+            fileStorageService.deletarArquivo(user.getFotoUrl());
+        }
+
+        String nomeArquivo = fileStorageService.salvarArquivo(file);
+        user.setFotoUrl(nomeArquivo);
+        return userRepository.save(user);
     }
 }

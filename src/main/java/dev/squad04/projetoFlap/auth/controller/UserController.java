@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -71,5 +72,11 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Integer idUsuario) {
         userService.deleteUser(idUsuario);
         return ResponseEntity.noContent().build();
+    }
+
+    public ResponseEntity<UserResponseDTO> uploadProfilePicture(
+            @PathVariable Integer idUsuario, @RequestParam("file") MultipartFile file) {
+        User updatedUser = userService.saveProfilePhoto(idUsuario, file);
+        return ResponseEntity.ok(userMapper.toDTO(updatedUser));
     }
 }
