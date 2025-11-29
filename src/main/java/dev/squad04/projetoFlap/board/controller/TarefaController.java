@@ -99,4 +99,11 @@ public class TarefaController {
         Tarefa tarefa = tarefaService.adicionarComentario(idTarefa, data);
         return ResponseEntity.ok(tarefaMapper.toDTO(tarefa));
     }
+
+    @Operation(summary = "Lista todas as tarefas associadas a um setor específico")
+    @GetMapping("/setor/{idSetor}")
+    public ResponseEntity<List<TarefaResponseDTO>> buscarTarefasPorSetor(@PathVariable Integer idSetor) {
+        List<Tarefa> tarefas = tarefaService.buscarTarefasPorSetor(idSetor);
+        return ResponseEntity.ok(tarefaMapper.toDTOList(tarefas));
+    }
 }

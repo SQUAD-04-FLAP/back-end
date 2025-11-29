@@ -12,4 +12,5 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Integer> {
     boolean existsByQuadroIdQuadro(Integer idQuadro);
     boolean existsByStatusIdStatus(Integer idStatus);
     List<Tarefa> findByResponsaveisIdUsuario(Integer idUsuario);
+    List<Tarefa> findBySetorIdSetor(Integer idSetor);
 }
