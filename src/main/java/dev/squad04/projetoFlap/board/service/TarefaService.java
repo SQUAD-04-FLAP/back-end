@@ -5,14 +5,13 @@ import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.board.dto.tarefa.*;
 import dev.squad04.projetoFlap.board.entity.*;
 import dev.squad04.projetoFlap.board.entity.associations.TarefaStatusHistory;
-import dev.squad04.projetoFlap.board.repository.QuadroRepository;
-import dev.squad04.projetoFlap.board.repository.SetorRepository;
-import dev.squad04.projetoFlap.board.repository.TarefaRepository;
-import dev.squad04.projetoFlap.board.repository.WorkflowStatusRepository;
+import dev.squad04.projetoFlap.board.repository.*;
 import dev.squad04.projetoFlap.exceptions.AppException;
+import dev.squad04.projetoFlap.file.service.FileStorageService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -28,13 +27,17 @@ public class TarefaService {
     private final UserRepository userRepository;
     private final WorkflowStatusRepository workflowStatusRepository;
     private final SetorRepository setorRepository;
+    private final FileStorageService fileStorageService;
+    private final AnexoRepository anexoRepository;
 
-    public TarefaService(TarefaRepository tarefaRepository, QuadroRepository quadroRepository, UserRepository userRepository, WorkflowStatusRepository workflowStatusRepository, SetorRepository setorRepository) {
+    public TarefaService(TarefaRepository tarefaRepository, QuadroRepository quadroRepository, UserRepository userRepository, WorkflowStatusRepository workflowStatusRepository, SetorRepository setorRepository, FileStorageService fileStorageService, AnexoRepository anexoRepository) {
         this.tarefaRepository = tarefaRepository;
         this.quadroRepository = quadroRepository;
         this.userRepository = userRepository;
         this.workflowStatusRepository = workflowStatusRepository;
         this.setorRepository = setorRepository;
+        this.fileStorageService = fileStorageService;
+        this.anexoRepository = anexoRepository;
     }
 
     @Transactional
@@ -129,6 +132,14 @@ public class TarefaService {
                 .orElseThrow(() -> new AppException("Tarefa com ID " + idTarefa + " não encontrada.", HttpStatus.NOT_FOUND));
     }
 
+    public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
+        return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
+    }
+
+    public List<Tarefa> buscarTarefasPorSetor(Integer idSetor) {
+        return tarefaRepository.findBySetorIdSetor(idSetor);
+    }
+
     @Transactional
     public Tarefa moverTarefaParaStatus(Integer idTarefa, MoverTarefaDTO data) {
         Tarefa tarefa = buscarPorId(idTarefa);
@@ -199,11 +210,30 @@ public class TarefaService {
         return tarefaRepository.save(tarefa);
     }
 
-    public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
-        return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
+    @Transactional
+    public Anexo adicionarAnexo(Integer idTarefa, MultipartFile file) {
+        Tarefa tarefa = buscarPorId(idTarefa);
+
+        String nomeArquivoFisico = fileStorageService.salvarArquivo(file);
+
+        Anexo anexo = new Anexo();
+        anexo.setIdAnexo(anexo.getIdAnexo());
+        anexo.setNomeOriginal(file.getOriginalFilename());
+        anexo.setNomeArquivo(nomeArquivoFisico);
+        anexo.setTipoArquivo(file.getContentType());
+        anexo.setTarefa(tarefa);
+
+        return anexoRepository.save(anexo);
     }
 
-    public List<Tarefa> buscarTarefasPorSetor(Integer idSetor) {
-        return tarefaRepository.findBySetorIdSetor(idSetor);
+    @Transactional
+    public void deletarAnexo(Integer idAnexo) {
+        Anexo anexo = anexoRepository.findById(idAnexo)
+                .orElseThrow(() -> new AppException("Anexo não encontrado", HttpStatus.NOT_FOUND));
+
+        String nomeArquivoFisico = anexo.getNomeArquivo();
+
+        anexoRepository.delete(anexo);
+        fileStorageService.deletarArquivo(nomeArquivoFisico);
     }
 }

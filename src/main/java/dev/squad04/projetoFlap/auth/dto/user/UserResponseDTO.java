@@ -17,5 +17,6 @@ public record UserResponseDTO(
         AuthProvider provedor,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        LocalDate dtNascimento
+        LocalDate dtNascimento,
+        String fotoUrl
 ) {}

@@ -29,7 +29,8 @@ public class UserMapper {
                 usuario.getProvedor(),
                 usuario.getCreatedAt(),
                 usuario.getUpdatedAt(),
-                usuario.getDtNascimento()
+                usuario.getDtNascimento(),
+                usuario.getFotoUrl()
         );
     }
 

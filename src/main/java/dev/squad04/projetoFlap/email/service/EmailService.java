@@ -27,4 +27,19 @@ public class EmailService {
         );
         mailSender.send(message);
     }
+
+    public void sendWelcomeEmail(String to, String name) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("squad04flapdigital@gmail.com");
+        message.setTo(to);
+        message.setSubject("Bem-vindo ao Flap Digital!");
+        message.setText(
+                "Olá " + name + ",\n\n" +
+                        "Estamos muito felizes em tê-lo conosco no Flap Digital.\n" +
+                        "Seja bem-vindo à nossa plataforma!\n\n" +
+                        "Atenciosamente,\n" +
+                        "Equipe Flap!"
+        );
+        mailSender.send(message);
+    }
 }

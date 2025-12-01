@@ -58,6 +58,9 @@ public class Tarefa {
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comentario> comentarios = new HashSet<>();
 
+    @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Anexo> anexos = new HashSet<>();
+
     private LocalDateTime dtTermino;
     private Boolean ativo;
     private String prioridade;
