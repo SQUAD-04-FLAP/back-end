@@ -1,5 +1,6 @@
 package dev.squad04.projetoFlap.board.mapper;
 
+import dev.squad04.projetoFlap.board.dto.anexo.AnexoDTO;
 import dev.squad04.projetoFlap.board.dto.comentario.ComentarioDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.ResponsavelDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.TarefaResponseDTO;
@@ -21,6 +22,14 @@ public class TarefaMapper {
 
         Set<ResponsavelDTO> responsaveisDto = tarefa.getResponsaveis().stream()
                 .map(user -> new ResponsavelDTO(user.getIdUsuario(), user.getNome(), user.getEmail()))
+                .collect(Collectors.toSet());
+
+        Set<AnexoDTO> anexosDto = tarefa.getAnexos().stream()
+                .map(anexo -> new AnexoDTO(
+                        anexo.getIdAnexo(),
+                        anexo.getNomeOriginal(),
+                        anexo.getNomeArquivo()
+                ))
                 .collect(Collectors.toSet());
 
         String nomeSetor = null;
@@ -64,6 +73,7 @@ public class TarefaMapper {
                 nomeSetor,
                 responsaveisDto,
                 comentariosDto,
+                anexosDto,
                 tarefa.getDtTermino(),
                 tarefa.getPrioridade(),
                 tarefa.getAtivo(),

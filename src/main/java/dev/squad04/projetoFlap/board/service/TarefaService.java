@@ -217,11 +217,23 @@ public class TarefaService {
         String nomeArquivoFisico = fileStorageService.salvarArquivo(file);
 
         Anexo anexo = new Anexo();
+        anexo.setIdAnexo(anexo.getIdAnexo());
         anexo.setNomeOriginal(file.getOriginalFilename());
         anexo.setNomeArquivo(nomeArquivoFisico);
         anexo.setTipoArquivo(file.getContentType());
         anexo.setTarefa(tarefa);
 
         return anexoRepository.save(anexo);
+    }
+
+    @Transactional
+    public void deletarAnexo(Integer idAnexo) {
+        Anexo anexo = anexoRepository.findById(idAnexo)
+                .orElseThrow(() -> new AppException("Anexo não encontrado", HttpStatus.NOT_FOUND));
+
+        String nomeArquivoFisico = anexo.getNomeArquivo();
+
+        anexoRepository.delete(anexo);
+        fileStorageService.deletarArquivo(nomeArquivoFisico);
     }
 }

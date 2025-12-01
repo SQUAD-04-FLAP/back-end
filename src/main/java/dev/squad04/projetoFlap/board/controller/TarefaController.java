@@ -111,11 +111,22 @@ public class TarefaController {
     }
 
     @Operation(summary = "Faz upload de um anexo para uma tarefa específica")
-    @PostMapping("/{idTarefa}/anexos")
+    @PostMapping("/anexos/{idTarefa}")
     public ResponseEntity<AnexoDTO> uploadAnexo(@PathVariable Integer idTarefa, @RequestParam("file") MultipartFile file) {
         Anexo anexo = tarefaService.adicionarAnexo(idTarefa, file);
         String url = "/flapboard/arquivos/" + anexo.getNomeArquivo();
 
         return ResponseEntity.ok(new AnexoDTO(anexo.getIdAnexo(), anexo.getNomeOriginal(), url));
+    }
+
+    @Operation(summary = "Exclui um anexo de uma tarefa")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Anexo excluído com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Anexo não encontrado")
+    })
+    @DeleteMapping("/anexos/{idAnexo}")
+    public ResponseEntity<Void> deletarAnexo(@PathVariable Integer idAnexo) {
+        tarefaService.deletarAnexo(idAnexo);
+        return ResponseEntity.noContent().build();
     }
 }

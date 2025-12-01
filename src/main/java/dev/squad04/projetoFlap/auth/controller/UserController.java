@@ -74,6 +74,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Faz upload da foto de perfil do usuário", description = "Permite ao usuário enviar ou atualizar sua foto de perfil.")
+    @PostMapping("/profilePic/{idUsuario}")
     public ResponseEntity<UserResponseDTO> uploadProfilePicture(
             @PathVariable Integer idUsuario, @RequestParam("file") MultipartFile file) {
         User updatedUser = userService.saveProfilePhoto(idUsuario, file);
