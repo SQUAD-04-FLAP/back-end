@@ -10,7 +10,13 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173", "https://flap-tau.vercel.app", "http://localhost:4173/")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "https://flap-tau.vercel.app",
+                        "http://localhost:4173",
+                        "http://localhost:8080",
+                        "https://api.flapkanban.top",
+                        "http://ec2-54-226-167-245.compute-1.amazonaws.com:8080")
                 .allowedMethods("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT")
                 .allowedHeaders("*")
                 .allowCredentials(true);

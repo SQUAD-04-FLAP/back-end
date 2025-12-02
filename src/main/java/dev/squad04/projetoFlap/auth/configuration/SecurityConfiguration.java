@@ -45,6 +45,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/flapboard/arquivos/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/auth/update-role/**").hasRole("ADMIN")
                         .requestMatchers("/oauth2/**").permitAll()
                         .anyRequest().authenticated()

@@ -1,6 +1,8 @@
 package dev.squad04.projetoFlap.board.controller;
 
+import dev.squad04.projetoFlap.board.dto.anexo.AnexoDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.*;
+import dev.squad04.projetoFlap.board.entity.Anexo;
 import dev.squad04.projetoFlap.board.entity.Tarefa;
 import dev.squad04.projetoFlap.board.mapper.TarefaMapper;
 import dev.squad04.projetoFlap.board.service.TarefaService;
@@ -11,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -98,5 +101,32 @@ public class TarefaController {
     public ResponseEntity<TarefaResponseDTO> adicionarComentario(@PathVariable Integer idTarefa, @RequestBody AdicionarComentarioDTO data) {
         Tarefa tarefa = tarefaService.adicionarComentario(idTarefa, data);
         return ResponseEntity.ok(tarefaMapper.toDTO(tarefa));
+    }
+
+    @Operation(summary = "Lista todas as tarefas associadas a um setor específico")
+    @GetMapping("/setor/{idSetor}")
+    public ResponseEntity<List<TarefaResponseDTO>> buscarTarefasPorSetor(@PathVariable Integer idSetor) {
+        List<Tarefa> tarefas = tarefaService.buscarTarefasPorSetor(idSetor);
+        return ResponseEntity.ok(tarefaMapper.toDTOList(tarefas));
+    }
+
+    @Operation(summary = "Faz upload de um anexo para uma tarefa específica")
+    @PostMapping("/anexos/{idTarefa}")
+    public ResponseEntity<AnexoDTO> uploadAnexo(@PathVariable Integer idTarefa, @RequestParam("file") MultipartFile file) {
+        Anexo anexo = tarefaService.adicionarAnexo(idTarefa, file);
+        String url = "/flapboard/arquivos/" + anexo.getNomeArquivo();
+
+        return ResponseEntity.ok(new AnexoDTO(anexo.getIdAnexo(), anexo.getNomeOriginal(), url));
+    }
+
+    @Operation(summary = "Exclui um anexo de uma tarefa")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Anexo excluído com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Anexo não encontrado")
+    })
+    @DeleteMapping("/anexos/{idAnexo}")
+    public ResponseEntity<Void> deletarAnexo(@PathVariable Integer idAnexo) {
+        tarefaService.deletarAnexo(idAnexo);
+        return ResponseEntity.noContent().build();
     }
 }

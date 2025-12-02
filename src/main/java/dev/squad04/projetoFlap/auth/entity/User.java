@@ -52,6 +52,7 @@ public class User implements UserDetails {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDate dtNascimento;
+    private String fotoUrl;
 
     public User(String nome, String email, String senha, UserRole permissao, AuthProvider provedor, LocalDate dtNascimento) {
         this.nome = nome;

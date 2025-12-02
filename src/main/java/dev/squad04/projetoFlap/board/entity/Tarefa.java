@@ -30,6 +30,10 @@ public class Tarefa {
     private Quadro quadro;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_setor")
+    private Setor setor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_status")
     private WorkflowStatus status;
 
@@ -53,6 +57,9 @@ public class Tarefa {
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comentario> comentarios = new HashSet<>();
+
+    @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Anexo> anexos = new HashSet<>();
 
     private LocalDateTime dtTermino;
     private Boolean ativo;

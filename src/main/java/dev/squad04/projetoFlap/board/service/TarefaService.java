@@ -3,18 +3,15 @@ package dev.squad04.projetoFlap.board.service;
 import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.board.dto.tarefa.*;
-import dev.squad04.projetoFlap.board.entity.Comentario;
-import dev.squad04.projetoFlap.board.entity.Quadro;
-import dev.squad04.projetoFlap.board.entity.Tarefa;
-import dev.squad04.projetoFlap.board.entity.WorkflowStatus;
+import dev.squad04.projetoFlap.board.entity.*;
 import dev.squad04.projetoFlap.board.entity.associations.TarefaStatusHistory;
-import dev.squad04.projetoFlap.board.repository.QuadroRepository;
-import dev.squad04.projetoFlap.board.repository.TarefaRepository;
-import dev.squad04.projetoFlap.board.repository.WorkflowStatusRepository;
+import dev.squad04.projetoFlap.board.repository.*;
 import dev.squad04.projetoFlap.exceptions.AppException;
+import dev.squad04.projetoFlap.file.service.FileStorageService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -29,18 +26,29 @@ public class TarefaService {
     private final QuadroRepository quadroRepository;
     private final UserRepository userRepository;
     private final WorkflowStatusRepository workflowStatusRepository;
+    private final SetorRepository setorRepository;
+    private final FileStorageService fileStorageService;
+    private final AnexoRepository anexoRepository;
 
-    public TarefaService(TarefaRepository tarefaRepository, QuadroRepository quadroRepository, UserRepository userRepository, WorkflowStatusRepository workflowStatusRepository) {
+    public TarefaService(TarefaRepository tarefaRepository, QuadroRepository quadroRepository, UserRepository userRepository, WorkflowStatusRepository workflowStatusRepository, SetorRepository setorRepository, FileStorageService fileStorageService, AnexoRepository anexoRepository) {
         this.tarefaRepository = tarefaRepository;
         this.quadroRepository = quadroRepository;
         this.userRepository = userRepository;
         this.workflowStatusRepository = workflowStatusRepository;
+        this.setorRepository = setorRepository;
+        this.fileStorageService = fileStorageService;
+        this.anexoRepository = anexoRepository;
     }
 
     @Transactional
     public Tarefa criarTarefa(CriarTarefaDTO data) {
-        if (data.idQuadro() == null) {
-            throw new AppException("O ID do quadro é obrigatório.", HttpStatus.BAD_REQUEST);
+        Setor setor = setorRepository.findById(data.idSetor())
+                .orElseThrow(() -> new AppException("Empresa/Setor não encontrado", HttpStatus.NOT_FOUND));
+
+        Quadro quadro = null;
+        if (data.idQuadro() != null) {
+            quadro = quadroRepository.findById(data.idQuadro())
+                    .orElseThrow(() -> new AppException("Quadro não encontrado", HttpStatus.BAD_REQUEST));
         }
 
         if (data.idCriador() == null) {
@@ -50,14 +58,6 @@ public class TarefaService {
         User user = userRepository.findById(data.idCriador())
                 .orElseThrow(() -> new AppException("Usuário criador não encontrado", HttpStatus.NOT_FOUND));
 
-        Quadro quadro = quadroRepository.findById(data.idQuadro())
-                .orElseThrow(() -> new AppException("Quadro não encontrado", HttpStatus.NOT_FOUND));
-
-        if (data.idSetor() != null) {
-            if (quadro.getSetor() == null || !quadro.getSetor().getIdSetor().equals(data.idSetor())) {
-                throw new AppException("O quadro informado não pertence à empresa/setor selecionado", HttpStatus.BAD_REQUEST);
-            }
-        }
 
         Set<User> responsaveis = new HashSet<>();
         if (data.idsResponsaveis() != null && !data.idsResponsaveis().isEmpty()) {
@@ -69,15 +69,19 @@ public class TarefaService {
             responsaveis.addAll(usersFounded);
         }
 
-        WorkflowStatus statusInicial = quadro.getWorkflowStatus().stream()
-                .min(Comparator.comparingInt(WorkflowStatus::getOrdem))
-                .orElseThrow(() -> new AppException("O quadro não possui status definidos", HttpStatus.BAD_REQUEST));
+        WorkflowStatus statusInicial = null;
+        if (quadro != null) {
+            statusInicial = quadro.getWorkflowStatus().stream()
+                    .min(Comparator.comparingInt(WorkflowStatus::getOrdem))
+                    .orElseThrow(() -> new AppException("O quadro não possui status definidos", HttpStatus.BAD_REQUEST));
+        }
 
         Tarefa novaTarefa = new Tarefa();
         novaTarefa.setTitulo(data.titulo());
         novaTarefa.setDescricao(data.descricao());
         novaTarefa.setCriadoPor(user);
         novaTarefa.setResponsaveis(responsaveis);
+        novaTarefa.setSetor(setor);
         novaTarefa.setQuadro(quadro);
         novaTarefa.setStatus(statusInicial);
         novaTarefa.setDtTermino(data.dtTermino());
@@ -100,6 +104,22 @@ public class TarefaService {
         tarefa.setPrioridade(data.prioridade());
         tarefa.setUpdatedAt(LocalDateTime.now());
 
+        Set<User> responsaveis = new HashSet<>();
+        if (data.idsResponsaveis() != null && !data.idsResponsaveis().isEmpty()) {
+            List<User> usersFounded = userRepository.findAllById(data.idsResponsaveis());
+
+            if (usersFounded.size() != data.idsResponsaveis().size()) {
+                throw new AppException("Um ou mais usuários responsáveis não foram encontrados", HttpStatus.NOT_FOUND);
+            }
+            responsaveis.addAll(usersFounded);
+        }
+        tarefa.setResponsaveis(responsaveis);
+
+        Setor setor = setorRepository.findById(data.idSetor())
+                .orElseThrow(() -> new AppException("Empresa/Setor não encontrado", HttpStatus.NOT_FOUND));
+
+        tarefa.setSetor(setor);
+
         return tarefaRepository.save(tarefa);
     }
 
@@ -110,6 +130,14 @@ public class TarefaService {
     public Tarefa buscarPorId(Integer idTarefa) {
         return tarefaRepository.findById(idTarefa)
                 .orElseThrow(() -> new AppException("Tarefa com ID " + idTarefa + " não encontrada.", HttpStatus.NOT_FOUND));
+    }
+
+    public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
+        return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
+    }
+
+    public List<Tarefa> buscarTarefasPorSetor(Integer idSetor) {
+        return tarefaRepository.findBySetorIdSetor(idSetor);
     }
 
     @Transactional
@@ -182,7 +210,30 @@ public class TarefaService {
         return tarefaRepository.save(tarefa);
     }
 
-    public List<Tarefa> buscarTarefasPorResponsavel(Integer idUsuario) {
-        return tarefaRepository.findByResponsaveisIdUsuario(idUsuario);
+    @Transactional
+    public Anexo adicionarAnexo(Integer idTarefa, MultipartFile file) {
+        Tarefa tarefa = buscarPorId(idTarefa);
+
+        String nomeArquivoFisico = fileStorageService.salvarArquivo(file);
+
+        Anexo anexo = new Anexo();
+        anexo.setIdAnexo(anexo.getIdAnexo());
+        anexo.setNomeOriginal(file.getOriginalFilename());
+        anexo.setNomeArquivo(nomeArquivoFisico);
+        anexo.setTipoArquivo(file.getContentType());
+        anexo.setTarefa(tarefa);
+
+        return anexoRepository.save(anexo);
+    }
+
+    @Transactional
+    public void deletarAnexo(Integer idAnexo) {
+        Anexo anexo = anexoRepository.findById(idAnexo)
+                .orElseThrow(() -> new AppException("Anexo não encontrado", HttpStatus.NOT_FOUND));
+
+        String nomeArquivoFisico = anexo.getNomeArquivo();
+
+        anexoRepository.delete(anexo);
+        fileStorageService.deletarArquivo(nomeArquivoFisico);
     }
 }

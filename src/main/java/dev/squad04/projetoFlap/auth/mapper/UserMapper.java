@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
+
+    private static final String BASE_URL = "/flapboard/arquivos/";
+
     public UserResponseDTO toDTO(User usuario) {
         Set<UserSetorDTO> setoresDto = usuario.getAssociacoesSetor().stream()
                 .map(associacao -> new UserSetorDTO(
@@ -18,6 +21,12 @@ public class UserMapper {
                         associacao.getSetor().getNome()
                 ))
                 .collect(Collectors.toSet());
+
+        String urlCompleta = null;
+
+        if (usuario.getFotoUrl() != null && !usuario.getFotoUrl().isBlank()) {
+            urlCompleta = BASE_URL + usuario.getFotoUrl();
+        }
 
         return new UserResponseDTO(
                 usuario.getIdUsuario(),
@@ -29,7 +38,8 @@ public class UserMapper {
                 usuario.getProvedor(),
                 usuario.getCreatedAt(),
                 usuario.getUpdatedAt(),
-                usuario.getDtNascimento()
+                usuario.getDtNascimento(),
+                urlCompleta
         );
     }
 

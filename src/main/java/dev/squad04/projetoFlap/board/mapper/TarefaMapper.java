@@ -1,5 +1,6 @@
 package dev.squad04.projetoFlap.board.mapper;
 
+import dev.squad04.projetoFlap.board.dto.anexo.AnexoDTO;
 import dev.squad04.projetoFlap.board.dto.comentario.ComentarioDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.ResponsavelDTO;
 import dev.squad04.projetoFlap.board.dto.tarefa.TarefaResponseDTO;
@@ -23,9 +24,26 @@ public class TarefaMapper {
                 .map(user -> new ResponsavelDTO(user.getIdUsuario(), user.getNome(), user.getEmail()))
                 .collect(Collectors.toSet());
 
+        Set<AnexoDTO> anexosDto = tarefa.getAnexos().stream()
+                .map(anexo -> new AnexoDTO(
+                        anexo.getIdAnexo(),
+                        anexo.getNomeOriginal(),
+                        anexo.getNomeArquivo()
+                ))
+                .collect(Collectors.toSet());
+
         String nomeSetor = null;
-        if (tarefa.getQuadro() != null && tarefa.getQuadro().getSetor() != null) {
+        if (tarefa.getSetor() != null) {
+            nomeSetor = tarefa.getSetor().getNome();
+        } else if (tarefa.getQuadro() != null && tarefa.getQuadro().getSetor() != null) {
             nomeSetor = tarefa.getQuadro().getSetor().getNome();
+        }
+
+        Integer idQuadro = null;
+        String nomeQuadro = null;
+        if (tarefa.getQuadro() != null) {
+            idQuadro = tarefa.getQuadro().getIdQuadro();
+            nomeQuadro = tarefa.getQuadro().getNome();
         }
 
         Integer idStatus = null;
@@ -46,8 +64,8 @@ public class TarefaMapper {
                 tarefa.getIdTarefa(),
                 tarefa.getTitulo(),
                 tarefa.getDescricao(),
-                tarefa.getQuadro().getIdQuadro(),
-                tarefa.getQuadro().getNome(),
+                idQuadro,
+                nomeQuadro,
                 idStatus,
                 nomeStatus,
                 idCriador,
@@ -55,6 +73,7 @@ public class TarefaMapper {
                 nomeSetor,
                 responsaveisDto,
                 comentariosDto,
+                anexosDto,
                 tarefa.getDtTermino(),
                 tarefa.getPrioridade(),
                 tarefa.getAtivo(),
