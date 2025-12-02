@@ -15,20 +15,34 @@ import java.util.stream.Collectors;
 @Component
 public class TarefaMapper {
 
+    private static final String BASE_URL = "/flapboard/arquivos/";
+
     public TarefaResponseDTO toDTO(Tarefa tarefa) {
         Set<ComentarioDTO> comentariosDto = tarefa.getComentarios().stream()
                 .map(this::toComentarioDTO)
                 .collect(Collectors.toSet());
 
         Set<ResponsavelDTO> responsaveisDto = tarefa.getResponsaveis().stream()
-                .map(user -> new ResponsavelDTO(user.getIdUsuario(), user.getNome(), user.getEmail()))
+                .map(user -> {
+                    String urlFoto = null;
+                    if (user.getFotoUrl() != null && !user.getFotoUrl().isBlank()) {
+                        urlFoto = BASE_URL + user.getFotoUrl();
+                    }
+
+                    return new ResponsavelDTO(
+                            user.getIdUsuario(),
+                            user.getNome(),
+                            user.getEmail(),
+                            urlFoto
+                    );
+                })
                 .collect(Collectors.toSet());
 
         Set<AnexoDTO> anexosDto = tarefa.getAnexos().stream()
                 .map(anexo -> new AnexoDTO(
                         anexo.getIdAnexo(),
                         anexo.getNomeOriginal(),
-                        anexo.getNomeArquivo()
+                        BASE_URL + anexo.getNomeArquivo()
                 ))
                 .collect(Collectors.toSet());
 
