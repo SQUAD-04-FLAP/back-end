@@ -35,13 +35,12 @@ public class FileController {
         try {
             Resource resource = new UrlResource(caminhoArquivo.toUri());
             if (resource.exists()) {
-                // Tenta descobrir o tipo de arquivo
                 String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
                 if (contentType == null) contentType = "application/octet-stream";
 
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType(contentType))
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
             } else {
                 return ResponseEntity.notFound().build();
