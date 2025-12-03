@@ -16,6 +16,7 @@ public record TarefaResponseDTO (
         String nomeStatus,
         Integer idCriadoPor,
         String nomeCriadoPor,
+        String fotoUrlCriador,
         String nomeSetor,
         Set<ResponsavelDTO> responsaveis,
         Set<ComentarioDTO> comentarios,

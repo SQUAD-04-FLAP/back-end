@@ -74,6 +74,11 @@ public class TarefaMapper {
             nomeCriador = tarefa.getCriadoPor().getNome();
         }
 
+        String fotoUrlCriador = null;
+        if (tarefa.getCriadoPor().getFotoUrl() != null) {
+            fotoUrlCriador = BASE_URL + tarefa.getCriadoPor().getFotoUrl();
+        }
+
         return new TarefaResponseDTO(
                 tarefa.getIdTarefa(),
                 tarefa.getTitulo(),
@@ -84,6 +89,7 @@ public class TarefaMapper {
                 nomeStatus,
                 idCriador,
                 nomeCriador,
+                fotoUrlCriador,
                 nomeSetor,
                 responsaveisDto,
                 comentariosDto,
@@ -108,7 +114,8 @@ public class TarefaMapper {
                 comentario.getMensagem(),
                 comentario.getCreatedAt(),
                 comentario.getUsuario().getIdUsuario(),
-                comentario.getUsuario().getNome()
+                comentario.getUsuario().getNome(),
+                comentario.getUsuario().getFotoUrl() != null ? BASE_URL + comentario.getUsuario().getFotoUrl() : null
         );
     }
 }
