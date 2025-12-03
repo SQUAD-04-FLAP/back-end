@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "setores")
@@ -22,4 +24,7 @@ public class Setor {
     private String descricao;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "setor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Anexo> anexos = new HashSet<>();
 }
