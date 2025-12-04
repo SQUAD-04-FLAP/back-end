@@ -1,8 +1,11 @@
 package dev.squad04.projetoFlap.board.controller;
 
+import dev.squad04.projetoFlap.board.dto.anexo.AnexoDTO;
 import dev.squad04.projetoFlap.board.dto.setor.AssociacaoResponseDTO;
 import dev.squad04.projetoFlap.board.dto.setor.AssociarUsuarioSetorDTO;
 import dev.squad04.projetoFlap.board.dto.setor.CriarSetorDTO;
+import dev.squad04.projetoFlap.board.dto.setor.SetorResponseDTO;
+import dev.squad04.projetoFlap.board.entity.Anexo;
 import dev.squad04.projetoFlap.board.entity.Setor;
 import dev.squad04.projetoFlap.board.entity.associations.UsuarioSetor;
 import dev.squad04.projetoFlap.board.mapper.SetorMapper;
@@ -14,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,9 +37,9 @@ public class SetorController {
     @Operation(summary = "Cria um novo setor")
     @ApiResponse(responseCode = "201", description = "Setor criado com sucesso")
     @PostMapping
-    public ResponseEntity<Setor> criarSetor(@RequestBody CriarSetorDTO data) {
+    public ResponseEntity<SetorResponseDTO> criarSetor(@RequestBody CriarSetorDTO data) {
         Setor novoSetor = setorService.criarSetor(data);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoSetor);
+        return ResponseEntity.status(HttpStatus.CREATED).body(setorMapper.toDTO(novoSetor));
     }
 
     @Operation(summary = "Associa um usuário a um setor")
@@ -56,9 +60,9 @@ public class SetorController {
 
     @Operation(summary = "Lista todos os setores")
     @GetMapping
-    public ResponseEntity<List<Setor>> listarTodos() {
+    public ResponseEntity<List<SetorResponseDTO>> listarTodos() {
         List<Setor> setores = setorService.listarTodos();
-        return ResponseEntity.ok(setores);
+        return ResponseEntity.ok(setorMapper.toDTOList(setores));
     }
 
     @Operation(summary = "Busca um setor pelo seu ID")
@@ -67,9 +71,9 @@ public class SetorController {
             @ApiResponse(responseCode = "404", description = "Setor não encontrado")
     })
     @GetMapping("/{idSetor}")
-    public ResponseEntity<Setor> buscarSetorPorId(@PathVariable Integer idSetor) {
+    public ResponseEntity<SetorResponseDTO> buscarSetorPorId(@PathVariable Integer idSetor) {
         Setor setor = setorService.buscarPorId(idSetor);
-        return ResponseEntity.ok(setor);
+        return ResponseEntity.ok(setorMapper.toDTO(setor));
     }
 
     @Operation(summary = "Atualiza os dados de um setor")
@@ -79,12 +83,12 @@ public class SetorController {
             @ApiResponse(responseCode = "409", description = "Nome de setor já em uso")
     })
     @PutMapping("/{idSetor}")
-    public ResponseEntity<Setor> atualizarSetor(
+    public ResponseEntity<SetorResponseDTO> atualizarSetor(
             @PathVariable Integer idSetor,
             @RequestBody CriarSetorDTO data) {
 
         Setor setorAtualizado = setorService.atualizarSetor(idSetor, data);
-        return ResponseEntity.ok(setorAtualizado);
+        return ResponseEntity.ok(setorMapper.toDTO(setorAtualizado));
     }
 
     @Operation(summary = "Exclui um setor")
@@ -95,6 +99,29 @@ public class SetorController {
     @DeleteMapping("/{idSetor}")
     public ResponseEntity<Void> deletarSetor(@PathVariable Integer idSetor) {
         setorService.deletarSetor(idSetor);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Adiciona um anexo (documento/logo) ao setor")
+    @PostMapping("/anexos/{idSetor}")
+    public ResponseEntity<AnexoDTO> uploadAnexo(
+            @PathVariable Integer idSetor, @RequestParam("file") MultipartFile file) {
+
+        Anexo anexo = setorService.adicionarAnexo(idSetor, file);
+
+        String url = "/flapboard/arquivos/" + anexo.getNomeArquivo();
+
+        return ResponseEntity.ok(new AnexoDTO(
+                anexo.getIdAnexo(),
+                anexo.getNomeOriginal(),
+                url
+        ));
+    }
+
+    @Operation(summary = "Deleta um anexo do setor")
+    @DeleteMapping("/anexos/{idAnexo}")
+    public ResponseEntity<Void> deletarAnexo(@PathVariable Integer idAnexo) {
+        setorService.deletarAnexo(idAnexo);
         return ResponseEntity.noContent().build();
     }
 }

@@ -4,15 +4,19 @@ import dev.squad04.projetoFlap.auth.entity.User;
 import dev.squad04.projetoFlap.auth.repository.UserRepository;
 import dev.squad04.projetoFlap.board.dto.setor.AssociarUsuarioSetorDTO;
 import dev.squad04.projetoFlap.board.dto.setor.CriarSetorDTO;
+import dev.squad04.projetoFlap.board.entity.Anexo;
 import dev.squad04.projetoFlap.board.entity.Setor;
 import dev.squad04.projetoFlap.board.entity.associations.UsuarioSetor;
 import dev.squad04.projetoFlap.board.entity.associations.UsuarioSetorId;
+import dev.squad04.projetoFlap.board.repository.AnexoRepository;
 import dev.squad04.projetoFlap.board.repository.SetorRepository;
 import dev.squad04.projetoFlap.board.repository.UsuarioSetorRepository;
 import dev.squad04.projetoFlap.exceptions.AppException;
+import dev.squad04.projetoFlap.file.service.FileStorageService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,11 +27,15 @@ public class SetorService {
     private final SetorRepository setorRepository;
     private final UserRepository userRepository;
     private final UsuarioSetorRepository usuarioSetorRepository;
+    private final FileStorageService fileStorageService;
+    private final AnexoRepository anexoRepository;
 
-    public SetorService(SetorRepository setorRepository, UserRepository userRepository, UsuarioSetorRepository usuarioSetorRepository) {
+    public SetorService(SetorRepository setorRepository, UserRepository userRepository, UsuarioSetorRepository usuarioSetorRepository, FileStorageService fileStorageService, AnexoRepository anexoRepository) {
         this.setorRepository = setorRepository;
         this.userRepository = userRepository;
         this.usuarioSetorRepository = usuarioSetorRepository;
+        this.fileStorageService = fileStorageService;
+        this.anexoRepository = anexoRepository;
     }
 
     public Setor criarSetor(CriarSetorDTO data) {
@@ -104,5 +112,35 @@ public class SetorService {
     public void deletarSetor(Integer idSetor) {
         Setor setorExistente = buscarPorId(idSetor);
         setorRepository.delete(setorExistente);
+    }
+
+    @Transactional
+    public Anexo adicionarAnexo(Integer idSetor, MultipartFile file) {
+        Setor setor = setorRepository.findById(idSetor)
+                .orElseThrow(() -> new AppException("Setor/Empresa não encontrado", HttpStatus.NOT_FOUND));
+
+        String nomeArquivoFisico = fileStorageService.salvarArquivo(file);
+
+        Anexo anexo = new Anexo();
+        anexo.setNomeOriginal(file.getOriginalFilename());
+        anexo.setNomeArquivo(nomeArquivoFisico);
+        anexo.setTipoArquivo(file.getContentType());
+        anexo.setSetor(setor);
+
+        return anexoRepository.save(anexo);
+    }
+
+    @Transactional
+    public void deletarAnexo(Integer idAnexo) {
+        Anexo anexo = anexoRepository.findById(idAnexo)
+                .orElseThrow(() -> new AppException("Anexo não encontrado", HttpStatus.NOT_FOUND));
+
+        if (anexo.getSetor() == null) {
+            throw new AppException("Este anexo não pertence a um setor.", HttpStatus.BAD_REQUEST);
+        }
+
+        String nomeFisico = anexo.getNomeArquivo();
+        anexoRepository.delete(anexo);
+        fileStorageService.deletarArquivo(nomeFisico);
     }
 }

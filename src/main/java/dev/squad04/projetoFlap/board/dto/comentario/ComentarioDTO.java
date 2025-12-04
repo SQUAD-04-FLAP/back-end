@@ -7,6 +7,7 @@ public record ComentarioDTO(
         String mensagem,
         LocalDateTime createdAt,
         Integer idUsuario,
-        String nomeUsuario
+        String nomeUsuario,
+        String fotoUrlUsuario
 ) {
 }

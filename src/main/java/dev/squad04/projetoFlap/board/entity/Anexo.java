@@ -24,4 +24,8 @@ public class Anexo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tarefa")
     private Tarefa tarefa;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_setor")
+    private Setor setor;
 }

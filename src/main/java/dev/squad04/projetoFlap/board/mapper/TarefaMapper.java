@@ -15,20 +15,34 @@ import java.util.stream.Collectors;
 @Component
 public class TarefaMapper {
 
+    private static final String BASE_URL = "/flapboard/arquivos/";
+
     public TarefaResponseDTO toDTO(Tarefa tarefa) {
         Set<ComentarioDTO> comentariosDto = tarefa.getComentarios().stream()
                 .map(this::toComentarioDTO)
                 .collect(Collectors.toSet());
 
         Set<ResponsavelDTO> responsaveisDto = tarefa.getResponsaveis().stream()
-                .map(user -> new ResponsavelDTO(user.getIdUsuario(), user.getNome(), user.getEmail()))
+                .map(user -> {
+                    String urlFoto = null;
+                    if (user.getFotoUrl() != null && !user.getFotoUrl().isBlank()) {
+                        urlFoto = BASE_URL + user.getFotoUrl();
+                    }
+
+                    return new ResponsavelDTO(
+                            user.getIdUsuario(),
+                            user.getNome(),
+                            user.getEmail(),
+                            urlFoto
+                    );
+                })
                 .collect(Collectors.toSet());
 
         Set<AnexoDTO> anexosDto = tarefa.getAnexos().stream()
                 .map(anexo -> new AnexoDTO(
                         anexo.getIdAnexo(),
                         anexo.getNomeOriginal(),
-                        anexo.getNomeArquivo()
+                        BASE_URL + anexo.getNomeArquivo()
                 ))
                 .collect(Collectors.toSet());
 
@@ -60,6 +74,11 @@ public class TarefaMapper {
             nomeCriador = tarefa.getCriadoPor().getNome();
         }
 
+        String fotoUrlCriador = null;
+        if (tarefa.getCriadoPor().getFotoUrl() != null) {
+            fotoUrlCriador = BASE_URL + tarefa.getCriadoPor().getFotoUrl();
+        }
+
         return new TarefaResponseDTO(
                 tarefa.getIdTarefa(),
                 tarefa.getTitulo(),
@@ -70,6 +89,7 @@ public class TarefaMapper {
                 nomeStatus,
                 idCriador,
                 nomeCriador,
+                fotoUrlCriador,
                 nomeSetor,
                 responsaveisDto,
                 comentariosDto,
@@ -94,7 +114,8 @@ public class TarefaMapper {
                 comentario.getMensagem(),
                 comentario.getCreatedAt(),
                 comentario.getUsuario().getIdUsuario(),
-                comentario.getUsuario().getNome()
+                comentario.getUsuario().getNome(),
+                comentario.getUsuario().getFotoUrl() != null ? BASE_URL + comentario.getUsuario().getFotoUrl() : null
         );
     }
 }
