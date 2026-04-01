@@ -1,4 +1,14 @@
 services:
+  app:
+    build: .
+    container_name: flap-backend-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:latest
     container_name: flap-backend-db
@@ -9,7 +19,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
 
 volumes:
   pgdata:
