@@ -73,13 +73,11 @@ public class AuthService implements UserDetailsService {
 
     public void requestPasswordReset(ForgotPasswordDTO data) {
         repository.findByEmail(data.email()).ifPresent(user -> {
-            if (user.getProvedor() == AuthProvider.CREDENTIALS) {
-                String code = new DecimalFormat("000000").format(new SecureRandom().nextInt(999999));
-                user.setResetCode(code);
-                user.setResetCodeExpiry(LocalDateTime.now().plusMinutes(10));
-                this.repository.save(user);
-                this.emailService.sendPasswordResetCode(user.getEmail(), code);
-            }
+            String code = new DecimalFormat("000000").format(new SecureRandom().nextInt(999999));
+            user.setResetCode(code);
+            user.setResetCodeExpiry(LocalDateTime.now().plusMinutes(10));
+            this.repository.save(user);
+            this.emailService.sendPasswordResetCode(user.getEmail(), code);
         });
     }
 

@@ -38,4 +38,20 @@ public class RestExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
+    
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex, HttpServletRequest request) {
+        String message = ex.getMessage();
+        if (message == null || message.isBlank() || message.equals("Full authentication is required to access this resource")) {
+             message = "Você precisa estar autenticado para acessar este recurso.";
+        }
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                Instant.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                message,
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
 }
